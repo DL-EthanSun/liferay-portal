@@ -25,6 +25,8 @@ import com.bmuschko.gradle.docker.tasks.image.DockerPullImage;
 import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage;
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile;
 
+import com.google.common.primitives.Ints;
+
 import com.liferay.gradle.plugins.LiferayBasePlugin;
 import com.liferay.gradle.plugins.node.NodeExtension;
 import com.liferay.gradle.plugins.node.tasks.NpmInstallTask;
@@ -63,6 +65,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -514,9 +518,47 @@ public class RootProjectConfigurator implements Plugin<Project> {
 
 		ListProperty<String> portBindings = hostConfig.getPortBindings();
 
+		AtomicReference<String> gogoShellPortValue = new AtomicReference<>(
+			"11311");
+
+		File file = project.file("Dockerfile.ext");
+
+		if (file.exists()) {
+			String gogoEnv =
+				"LIFERAY_MODULE_PERIOD_FRAMEWORK_PERIOD_" +
+					"PROPERTIES_PERIOD_OSGI_PERIOD_CONSOLE";
+
+			try (Stream<String> stream = Files.lines(file.toPath())) {
+				stream.filter(
+					line -> line.contains(gogoEnv) && line.contains(":")
+				).findFirst(
+				).ifPresent(
+					line -> {
+						String port = line.split(":")[1];
+
+						Integer portNum = Ints.tryParse(port);
+
+						if (Objects.isNull(portNum)) {
+							throw new GradleException("The port is invalid");
+						}
+
+						if (port.equals("8000") || port.equals("8080")) {
+							throw new GradleException(
+								"The port is already used by another service");
+						}
+
+						gogoShellPortValue.set(portNum.toString());
+					}
+				);
+			}
+			catch (IOException ioException) {
+				ioException.printStackTrace();
+			}
+		}
+
 		portBindings.add("8000:8000");
 		portBindings.add("8080:8080");
-		portBindings.add("11311:11311");
+		portBindings.add(gogoShellPortValue.get() + ":11311");
 
 		dockerCreateContainer.targetImageId(
 			new Callable<String>() {
