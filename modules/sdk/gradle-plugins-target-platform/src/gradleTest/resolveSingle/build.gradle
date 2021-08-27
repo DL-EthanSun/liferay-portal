@@ -37,12 +37,12 @@ apply plugin: "com.liferay.target.platform"
 task runGradleTest
 
 dependencies {
-	compileOnly group: "com.liferay.portal", name: "com.liferay.portal.kernel"
-	compileOnly group: "com.liferay.portal", name: "com.liferay.util.taglib"
-	compileOnly group: "javax.portlet", name: "portlet-api"
-	compileOnly group: "jstl", name: "jstl"
-	compileOnly group: "org.apache.felix", name: "org.apache.felix.http.servlet-api", version: "1.1.2"
-	compileOnly group: "org.osgi", name: "org.osgi.service.component.annotations"
+	implementation group: "com.liferay.portal", name: "com.liferay.portal.kernel"
+	implementation group: "com.liferay.portal", name: "com.liferay.util.taglib"
+	implementation group: "javax.portlet", name: "portlet-api"
+	implementation group: "jstl", name: "jstl"
+	implementation group: "org.apache.felix", name: "org.apache.felix.http.servlet-api", version: "1.1.2"
+	implementation group: "org.osgi", name: "org.osgi.service.component.annotations"
 
 	targetPlatformBoms group: "com.liferay.portal", name: "release.portal.bom", version: "7.2.1"
 	targetPlatformBoms group: "com.liferay.portal", name: "release.portal.bom.compile.only", version: "7.2.1"

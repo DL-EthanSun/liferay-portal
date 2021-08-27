@@ -43,6 +43,7 @@ project(":sample-service") {
 	}
 
 	dependencies {
+		compile group: "com.liferay", name: "com.liferay.petra.string", version: "5.0.1"
 		compile group: "com.liferay", name: "com.liferay.portal.spring.extender", version: "2.0.0"
 		compile project(":sample-api")
 	}
