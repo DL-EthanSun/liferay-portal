@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Wiki Service
 Bundle-SymbolicName: com.liferay.wiki.service
-Bundle-Version: 5.0.17
+Bundle-Version: 5.0.18
 Import-Package:\
 	!com.liferay.portal.tools.sql,\
 	\

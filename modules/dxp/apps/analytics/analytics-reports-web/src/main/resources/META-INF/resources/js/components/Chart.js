@@ -28,7 +28,6 @@ import {
 import {
 	ChartDispatchContext,
 	ChartStateContext,
-	useDateTitle,
 	useIsPreviousPeriodButtonDisabled,
 } from '../context/ChartStateContext';
 import ConnectionContext from '../context/ConnectionContext';
@@ -37,7 +36,6 @@ import {generateDateFormatters as dateFormat} from '../utils/dateFormat';
 import {numberFormat} from '../utils/numberFormat';
 import {ActiveDot as CustomActiveDot, Dot as CustomDot} from './CustomDots';
 import CustomTooltip from './CustomTooltip';
-import TimeSpanSelector from './TimeSpanSelector';
 
 const CHART_COLORS = {
 	analyticsReportsHistoricalReads: '#50D2A0',
@@ -131,11 +129,7 @@ function legendFormatterGenerator(
 	};
 }
 
-export default function Chart({
-	dataProviders = [],
-	publishDate,
-	timeSpanOptions,
-}) {
+export default function Chart({dataProviders = [], publishDate}) {
 	const {validAnalyticsConnection} = useContext(ConnectionContext);
 
 	const storeDispatch = useContext(StoreDispatchContext);
@@ -146,21 +140,17 @@ export default function Chart({
 
 	const {
 		dataSet,
-		loading,
+		lineChartLoading,
 		timeRange,
 		timeSpanKey,
 		timeSpanOffset,
 	} = useContext(ChartStateContext);
-
-	const {firstDate, lastDate} = useDateTitle();
 
 	const isPreviousPeriodButtonDisabled = useIsPreviousPeriodButtonDisabled();
 
 	const dateFormatters = useMemo(() => dateFormat(languageTag), [
 		languageTag,
 	]);
-
-	const title = dateFormatters.formatChartTitle([firstDate, lastDate]);
 
 	const isMounted = useIsMounted();
 
@@ -255,34 +245,19 @@ export default function Chart({
 			: dateFormatters.formatNumericDay;
 
 	const lineChartWrapperClasses = className('line-chart-wrapper', {
-		'line-chart-wrapper--loading': loading,
+		'line-chart-wrapper--loading': lineChartLoading,
 	});
 
 	return (
 		<>
-			{!!timeSpanOptions.length && (
-				<div className="c-mb-3 c-mt-4">
-					<TimeSpanSelector
-						disabledNextTimeSpan={timeSpanOffset === 0}
-						disabledPreviousPeriodButton={
-							isPreviousPeriodButtonDisabled
-						}
-						timeSpanKey={timeSpanKey}
-						timeSpanOptions={timeSpanOptions}
-					/>
-				</div>
-			)}
-
 			{dataSet ? (
 				<div className={lineChartWrapperClasses}>
-					{loading && (
+					{lineChartLoading && (
 						<ClayLoadingIndicator
 							className="chart-loading-indicator"
 							small
 						/>
 					)}
-
-					{title && <h5 className="mb-3">{title}</h5>}
 
 					<div className="line-chart">
 						<LineChart

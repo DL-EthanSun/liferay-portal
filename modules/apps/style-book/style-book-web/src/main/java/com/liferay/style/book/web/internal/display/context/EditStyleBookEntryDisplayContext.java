@@ -224,18 +224,7 @@ public class EditStyleBookEntryDisplayContext {
 		int total =
 			LayoutPageTemplateEntryServiceUtil.
 				getLayoutPageTemplateEntriesCount(
-					_themeDisplay.getScopeGroupId(), layoutType);
-
-		int numItems = 4;
-
-		if (total < numItems) {
-			numItems = total;
-		}
-
-		List<LayoutPageTemplateEntry> layoutPageTemplateEntries =
-			LayoutPageTemplateEntryServiceUtil.getLayoutPageTemplateEntries(
-				_themeDisplay.getScopeGroupId(), layoutType, 0, numItems,
-				new LayoutPageTemplateEntryModifiedDateComparator(false));
+					_getPreviewItemsGroupId(), layoutType);
 
 		return JSONUtil.put(
 			"itemSelectorURL",
@@ -244,6 +233,8 @@ public class EditStyleBookEntryDisplayContext {
 					layoutPageTemplateEntryItemSelectorCriterion =
 						new LayoutPageTemplateEntryItemSelectorCriterion();
 
+				layoutPageTemplateEntryItemSelectorCriterion.setGroupId(
+					_getPreviewItemsGroupId());
 				layoutPageTemplateEntryItemSelectorCriterion.setLayoutType(
 					layoutType);
 
@@ -263,6 +254,14 @@ public class EditStyleBookEntryDisplayContext {
 		).put(
 			"recentLayouts",
 			() -> {
+				List<LayoutPageTemplateEntry> layoutPageTemplateEntries =
+					LayoutPageTemplateEntryServiceUtil.
+						getLayoutPageTemplateEntries(
+							_getPreviewItemsGroupId(), layoutType, 0,
+							Math.min(total, 4),
+							new LayoutPageTemplateEntryModifiedDateComparator(
+								false));
+
 				Stream<LayoutPageTemplateEntry>
 					layoutPageTemplateEntriesStream =
 						layoutPageTemplateEntries.stream();
@@ -287,17 +286,7 @@ public class EditStyleBookEntryDisplayContext {
 
 	private JSONObject _getPageOptionJSONObject() {
 		int total = LayoutLocalServiceUtil.getLayoutsCount(
-			_themeDisplay.getScopeGroupId());
-
-		int numItems = 4;
-
-		if (total < numItems) {
-			numItems = total;
-		}
-
-		List<Layout> layouts = LayoutLocalServiceUtil.getLayouts(
-			_themeDisplay.getScopeGroupId(), 0, numItems,
-			new LayoutModifiedDateComparator(false));
+			_getPreviewItemsGroupId());
 
 		return JSONUtil.put(
 			"itemSelectorURL",
@@ -308,12 +297,11 @@ public class EditStyleBookEntryDisplayContext {
 				layoutItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
 					new LayoutItemSelectorReturnType());
 				layoutItemSelectorCriterion.setShowDraftPages(true);
+				layoutItemSelectorCriterion.setShowHiddenPages(true);
 
 				PortletURL itemSelectorURL = _itemSelector.getItemSelectorURL(
 					RequestBackedPortletURLFactoryUtil.create(
 						_httpServletRequest),
-					_themeDisplay.getScopeGroup(),
-					_themeDisplay.getScopeGroupId(),
 					_renderResponse.getNamespace() + "selectPreviewItem",
 					layoutItemSelectorCriterion);
 
@@ -322,6 +310,10 @@ public class EditStyleBookEntryDisplayContext {
 		).put(
 			"recentLayouts",
 			() -> {
+				List<Layout> layouts = LayoutLocalServiceUtil.getLayouts(
+					_getPreviewItemsGroupId(), 0, Math.min(total, 4),
+					new LayoutModifiedDateComparator(false));
+
 				Stream<Layout> layoutsStream = layouts.stream();
 
 				return JSONUtil.putAll(
@@ -340,6 +332,18 @@ public class EditStyleBookEntryDisplayContext {
 		).put(
 			"totalLayouts", total
 		);
+	}
+
+	private long _getPreviewItemsGroupId() {
+		if (_previewItemsGroupId != null) {
+			return _previewItemsGroupId;
+		}
+
+		Layout layout = _themeDisplay.getLayout();
+
+		_previewItemsGroupId = layout.getGroupId();
+
+		return _previewItemsGroupId;
 	}
 
 	private String _getPreviewURL(Layout layout) {
@@ -470,6 +474,7 @@ public class EditStyleBookEntryDisplayContext {
 		_frontendTokenDefinitionRegistry;
 	private final HttpServletRequest _httpServletRequest;
 	private final ItemSelector _itemSelector;
+	private Long _previewItemsGroupId;
 	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;
 	private StyleBookEntry _styleBookEntry;

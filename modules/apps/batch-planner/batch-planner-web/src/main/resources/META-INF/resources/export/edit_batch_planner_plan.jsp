@@ -163,13 +163,29 @@ renderResponse.setTitle(LanguageUtil.get(request, "export"));
 					type="button"
 				/>
 
-				<clay:button
-					disabled="true"
-					displayType="secondary"
-					id='<%= liferayPortletResponse.getNamespace() + "saveTemplate" %>'
-					label="save-as-template"
-					type="button"
-				/>
+				<span>
+					<react:component
+						module="js/SaveTemplate"
+						props='<%=
+							HashMapBuilder.<String, Object>put(
+								"formSaveAsTemplateDataQuerySelector", "#" + liferayPortletResponse.getNamespace() + "fm"
+							).put(
+								"formSaveAsTemplateURL",
+								ResourceURLBuilder.createResourceURL(
+									renderResponse
+								).setCMD(
+									Constants.SAVE
+								).setParameter(
+									"template", true
+								).setResourceID(
+									"/batch_planner/edit_export_batch_planner_plan"
+								).buildString()
+							).put(
+								"namespace", liferayPortletResponse.getNamespace()
+							).build()
+						%>'
+					/>
+				</span>
 
 				<clay:button
 					disabled="true"
@@ -184,28 +200,4 @@ renderResponse.setTitle(LanguageUtil.get(request, "export"));
 
 <liferay-frontend:component
 	module="js/edit_batch_planner_plan"
-/>
-
-<liferay-frontend:component
-	context='<%=
-		HashMapBuilder.<String, Object>put(
-			"buttonContainerId", liferayPortletResponse.getNamespace() + "formButtons"
-		).put(
-			"formSaveAsTemplateDataQuerySelector", "#" + liferayPortletResponse.getNamespace() + "fm"
-		).put(
-			"formSaveAsTemplateURL",
-			ResourceURLBuilder.createResourceURL(
-				renderResponse
-			).setCMD(
-				Constants.SAVE
-			).setParameter(
-				"template", true
-			).setResourceID(
-				"/batch_planner/edit_export_batch_planner_plan"
-			).buildString()
-		).put(
-			"portletNamespace", liferayPortletResponse.getNamespace()
-		).build()
-	%>'
-	module="js/save_template_modal"
 />

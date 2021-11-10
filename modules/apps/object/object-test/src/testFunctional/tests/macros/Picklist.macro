@@ -50,6 +50,12 @@ definition {
 		AssertElementPresent(locator1 = "Picklist#DISABLE_PICKLIST_KEY");
 	}
 
+	macro assertEmptyStateMessageDisplayed {
+		AssertTextEquals(
+			locator1 = "Message#EMPTY_INFO",
+			value1 = "No items were found.");
+	}
+
 	macro assertPicklist {
 		var key_picklistName = "${picklistName}";
 
@@ -175,6 +181,16 @@ definition {
 		Click.javaScriptClick(locator1 = "Picklist#PICKLIST_ITEM_KEBAB_MENU");
 
 		Click.javaScriptClick(locator1 = "Picklist#PICKLIST_ITEM_KEBAB_MENU_OPTION");
+	}
+
+	macro searchPicklist {
+		Type(
+			locator1 = "TextInput#SEARCH",
+			value1 = "${picklistName}");
+
+		KeyPress(
+			locator1 = "TextInput#SEARCH",
+			value1 = "\RETURN");
 	}
 
 	macro selectPickilistModalFrame {

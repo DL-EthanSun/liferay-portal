@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react';
 import {useWatch} from 'react-hook-form';
+import {createExitAlert} from '~/common/utils/exitAlert';
 
 import {Forms} from '~/routes/get-a-quote/components/containers/Forms';
 import {Steps} from '~/routes/get-a-quote/components/containers/Steps';
@@ -27,6 +28,10 @@ const QuoteApp = () => {
 			</>
 		);
 	};
+
+	useEffect(() => {
+		createExitAlert();
+	});
 
 	useEffect(() => {
 		updateState('');

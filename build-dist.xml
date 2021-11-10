@@ -3,8 +3,6 @@
 <project basedir="." default="dist" name="portal-dist" xmlns:antelope="antlib:ise.antelope.tasks">
 	<import file="build.xml" />
 
-	<property name="elasticsearch.sidecar.version" value="7.10.2" />
-
 	<macrodef name="build-dist-tomcat-bare">
 		<sequential>
 			<if>
@@ -2621,14 +2619,14 @@ plugins.includes=</echo>
 				</if>
 
 				<if>
-					<available file="${zip.executable.dir}/../elasticsearch-sidecar/${elasticsearch.sidecar.version}" />
+					<available file="${zip.executable.dir}/../elasticsearch-sidecar" />
 					<then>
 						<copy
 							preservelastmodified="true"
-							todir="dist/${tstamp.value}/liferay-portal-${lp.version}/elasticsearch-sidecar/${elasticsearch.sidecar.version}"
+							todir="dist/${tstamp.value}/liferay-portal-${lp.version}/elasticsearch-sidecar"
 						>
 							<fileset
-								dir="${zip.executable.dir}/../elasticsearch-sidecar/${elasticsearch.sidecar.version}"
+								dir="${zip.executable.dir}/../elasticsearch-sidecar"
 							/>
 						</copy>
 					</then>
@@ -2888,7 +2886,7 @@ plugins.includes=</echo>
 			todir="${tstamp.value}"
 		>
 			<fileset
-				dir="${liferay.home}/elasticsearch-sidecar/${elasticsearch.sidecar.version}"
+				dir="${liferay.home}/elasticsearch-sidecar"
 			/>
 		</copy>
 
@@ -2897,7 +2895,7 @@ plugins.includes=</echo>
 		>
 			<zipfileset
 				dir="${tstamp.value}"
-				prefix="liferay-portal-elasticsearch-${lp.version}/elasticsearch-sidecar/${elasticsearch.sidecar.version}"
+				prefix="liferay-portal-elasticsearch-${lp.version}/elasticsearch-sidecar"
 			/>
 		</zip>
 

@@ -45,7 +45,9 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.core.Appender;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,6 +63,22 @@ public class UpgradeReportLogAppenderTest {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new LiferayIntegrationTestRule();
+
+	@BeforeClass
+	public static void setUpClass() throws Exception {
+		_db = DBManagerUtil.getDB();
+
+		_db.runSQL(
+			"create table UpgradeReportTable1 (id_ LONG not null primary key)");
+		_db.runSQL(
+			"create table UpgradeReportTable2 (id_ LONG not null primary key)");
+	}
+
+	@AfterClass
+	public static void tearDownClass() throws Exception {
+		_db.runSQL("drop table if exists UpgradeReportTable1");
+		_db.runSQL("drop table if exists UpgradeReportTable2");
+	}
 
 	@After
 	public void tearDown() {
@@ -83,27 +101,13 @@ public class UpgradeReportLogAppenderTest {
 
 	@Test
 	public void testDatabaseTablesCounts() throws Exception {
-		DB db = DBManagerUtil.getDB();
-
-		String table1Name = "UpgradeReportTable1";
-		String table2Name = "UpgradeReportTable2";
-
-		db.runSQL(
-			new String[] {
-				"create table " + table1Name +
-					" (id LONG not null primary key)",
-				"create table " + table2Name +
-					" (id LONG not null primary key)",
-				"insert into " + table2Name + " (id) values (1)"
-			});
+		_db.runSQL("insert into UpgradeReportTable2 (id_) values (1)");
 
 		_appender.start();
 
-		db.runSQL(
-			new String[] {
-				"insert into " + table1Name + " (id) values (1)",
-				"delete from " + table2Name + " where id = 1"
-			});
+		_db.runSQL("insert into UpgradeReportTable1 (id_) values (1)");
+
+		_db.runSQL("delete from UpgradeReportTable2 where id_ = 1");
 
 		_appender.stop();
 
@@ -122,13 +126,15 @@ public class UpgradeReportLogAppenderTest {
 			int initialCount = GetterUtil.getInteger(matcher.group(2), -1);
 			int finalCount = GetterUtil.getInteger(matcher.group(3), -1);
 
-			if (tableName.equals(table1Name)) {
+			if (StringUtil.equalsIgnoreCase(tableName, "UpgradeReportTable1")) {
 				table1Exists = true;
 
 				Assert.assertEquals(0, initialCount);
 				Assert.assertEquals(1, finalCount);
 			}
-			else if (tableName.equals(table2Name)) {
+			else if (StringUtil.equalsIgnoreCase(
+						tableName, "UpgradeReportTable2")) {
+
 				table2Exists = true;
 
 				Assert.assertEquals(1, initialCount);
@@ -140,12 +146,6 @@ public class UpgradeReportLogAppenderTest {
 		}
 
 		Assert.assertTrue(table1Exists && table2Exists);
-
-		db.runSQL(
-			new String[] {
-				"drop table if exists " + table1Name,
-				"drop table if exists " + table2Name
-			});
 	}
 
 	@Test
@@ -349,6 +349,7 @@ public class UpgradeReportLogAppenderTest {
 		return FileUtil.read(reportFile);
 	}
 
+	private static DB _db;
 	private static final Pattern _pattern = Pattern.compile(
 		"(\\w+_?)\\s+(\\d+|-)\\s+(\\d+|-)\n");
 

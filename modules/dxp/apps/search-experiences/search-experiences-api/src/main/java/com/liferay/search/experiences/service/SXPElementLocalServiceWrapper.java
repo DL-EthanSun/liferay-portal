@@ -354,6 +354,13 @@ public class SXPElementLocalServiceWrapper
 		return _sxpElementLocalService.getSXPElements(start, end);
 	}
 
+	@Override
+	public java.util.List<com.liferay.search.experiences.model.SXPElement>
+		getSXPElements(long companyId) {
+
+		return _sxpElementLocalService.getSXPElements(companyId);
+	}
+
 	/**
 	 * Returns the number of sxp elements.
 	 *

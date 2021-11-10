@@ -259,7 +259,8 @@ public class AccountEntryServiceWhenSearchingAccountEntriesTest {
 			TestPropsValues.getUserId(),
 			AccountConstants.ACCOUNT_ENTRY_ID_DEFAULT,
 			RandomTestUtil.randomString(), RandomTestUtil.randomString(), null,
-			null, WorkflowConstants.STATUS_APPROVED,
+			null, null, null, AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS,
+			WorkflowConstants.STATUS_APPROVED,
 			ServiceContextTestUtil.getServiceContext());
 
 		_accountEntryOrganizationRelLocalService.addAccountEntryOrganizationRel(

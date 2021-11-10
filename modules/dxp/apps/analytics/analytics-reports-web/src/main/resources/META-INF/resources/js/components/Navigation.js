@@ -92,23 +92,32 @@ export default function Navigation({
 	const handleTrafficSources = useCallback(() => {
 		return APIService.getTrafficSources(
 			endpoints.analyticsReportsTrafficSourcesURL,
-			{namespace, plid: page.plid}
+			{namespace, plid: page.plid, timeSpanKey, timeSpanOffset}
 		).then(({trafficSources}) => trafficSources);
-	}, [endpoints.analyticsReportsTrafficSourcesURL, namespace, page.plid]);
+	}, [
+		endpoints.analyticsReportsTrafficSourcesURL,
+		namespace,
+		page.plid,
+		timeSpanKey,
+		timeSpanOffset,
+	]);
 
-	const handleTrafficSourceClick = (trafficSources, trafficSourceName) => {
-		setTrafficSources(trafficSources);
-		setTrafficSourceName(trafficSourceName);
+	const updateTrafficSourcesAndCurrentPage = useCallback(
+		(trafficSources, trafficSourceName) => {
+			setTrafficSources(trafficSources);
+			setTrafficSourceName(trafficSourceName);
 
-		const trafficSource = trafficSources.find((trafficSource) => {
-			return trafficSource.name === trafficSourceName;
-		});
+			const trafficSource = trafficSources.find((trafficSource) => {
+				return trafficSource.name === trafficSourceName;
+			});
 
-		setCurrentPage({
-			data: trafficSource,
-			view: trafficSource.name,
-		});
-	};
+			setCurrentPage({
+				data: trafficSource,
+				view: trafficSource.name,
+			});
+		},
+		[]
+	);
 
 	const handleTrafficSourceName = (trafficSourceName) =>
 		setTrafficSourceName(trafficSourceName);
@@ -175,7 +184,9 @@ export default function Navigation({
 								: [handleHistoricalViews]
 						}
 						onSelectedLanguageClick={onSelectedLanguageClick}
-						onTrafficSourceClick={handleTrafficSourceClick}
+						onTrafficSourceClick={
+							updateTrafficSourcesAndCurrentPage
+						}
 						pagePublishDate={pagePublishDate}
 						pageTitle={pageTitle}
 						timeSpanOptions={timeSpanOptions}
@@ -193,10 +204,14 @@ export default function Navigation({
 			{currentPage.view !== 'main' && (
 				<Detail
 					currentPage={currentPage}
+					handleDetailPeriodChange={
+						updateTrafficSourcesAndCurrentPage
+					}
 					onCurrentPageChange={handleCurrentPage}
 					onTrafficSourceNameChange={handleTrafficSourceName}
 					timeSpanOptions={timeSpanOptions}
 					trafficShareDataProvider={handleTrafficShare}
+					trafficSourcesDataProvider={handleTrafficSources}
 					trafficVolumeDataProvider={handleTrafficVolume}
 				/>
 			)}

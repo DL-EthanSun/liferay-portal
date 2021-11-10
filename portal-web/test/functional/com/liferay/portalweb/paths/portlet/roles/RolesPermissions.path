@@ -53,6 +53,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>CONTROL_PANEL_CUSTOM_OBJECTS_PERMISSIONS_RESOURCE_PERMISSIONS_UPDATE_CHECKBOX</td>
+	<td>//input[contains(@name,'_com_liferay_roles_admin_web_portlet_RolesAdminPortlet_rowIds') and contains(@value,'UPDATE')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>CONTROL_PANEL_CUSTOM_OBJECTS_PERMISSIONS_RESOURCE_PERMISSIONS_VIEW_CHECKBOX</td>
 	<td>xpath=(//input[contains(@name,'_com_liferay_roles_admin_web_portlet_RolesAdminPortlet_rowIds') and contains(@value,'VIEW')])[2]</td>
 	<td></td>

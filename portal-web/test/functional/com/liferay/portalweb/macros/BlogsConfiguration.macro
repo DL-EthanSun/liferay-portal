@@ -1,5 +1,40 @@
 definition {
 
+	macro configureDisplayStyleInSystemSettings {
+		ApplicationsMenu.gotoPortlet(
+			category = "Configuration",
+			panel = "Control Panel",
+			portlet = "System Settings");
+
+		SystemSettings.gotoConfiguration(
+			configurationCategory = "Blogs",
+			configurationName = "Blogs",
+			configurationScope = "Widget Scope");
+
+		if ("${displayStyle}" == "Abstract") {
+			var displayStyleKey = "abstract";
+		}
+		else if ("${displayStyle}" == "Full Content") {
+			var displayStyleKey = "full-content";
+		}
+		else if ("${displayStyle}" == "Title") {
+			var displayStyleKey = "title";
+		}
+		else if ("${displayStyle}" == "Basic") {
+			var displayStyleKey = "ddmTemplate_BLOGS-BASIC-FTL";
+		}
+		else if ("${displayStyle}" == "Card") {
+			var displayStyleKey = "ddmTemplate_BLOGS-CARD-FTL";
+		}
+
+		Type(
+			key_fieldName = "displayStyle",
+			locator1 = "FormFields#TEXT_MULTILINE_FIELD",
+			value1 = "${displayStyleKey}");
+
+		Button.clickSave();
+	}
+
 	macro enableReadingTime {
 		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
@@ -62,6 +97,10 @@ definition {
 
 	macro uncheckComments {
 		Uncheck(locator1 = "Checkbox#ENABLE_COMMENTS");
+	}
+
+	macro uncheckRatings {
+		Uncheck(locator1 = "Checkbox#ENABLE_RATINGS");
 	}
 
 	macro uncheckRelatedAssets {

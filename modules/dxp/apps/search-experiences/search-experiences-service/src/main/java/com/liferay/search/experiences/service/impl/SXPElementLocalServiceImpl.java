@@ -34,6 +34,7 @@ import com.liferay.search.experiences.model.SXPElement;
 import com.liferay.search.experiences.service.base.SXPElementLocalServiceBaseImpl;
 import com.liferay.search.experiences.validator.SXPElementValidator;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -112,6 +113,10 @@ public class SXPElementLocalServiceImpl extends SXPElementLocalServiceBaseImpl {
 			sxpElement, ResourceConstants.SCOPE_INDIVIDUAL);
 
 		return sxpElement;
+	}
+
+	public List<SXPElement> getSXPElements(long companyId) {
+		return sxpElementPersistence.findByCompanyId(companyId);
 	}
 
 	@Indexable(type = IndexableType.REINDEX)

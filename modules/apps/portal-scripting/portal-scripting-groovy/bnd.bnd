@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Portal Scripting Groovy
 Bundle-SymbolicName: com.liferay.portal.scripting.groovy
-Bundle-Version: 6.0.5
+Bundle-Version: 6.0.6
 Import-Package:\
 	!com.thoughtworks.xstream.*,\
 	\

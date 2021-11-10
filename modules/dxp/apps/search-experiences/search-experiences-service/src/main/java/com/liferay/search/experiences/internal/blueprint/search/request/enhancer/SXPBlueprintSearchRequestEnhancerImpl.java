@@ -15,7 +15,6 @@
 package com.liferay.search.experiences.internal.blueprint.search.request.enhancer;
 
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.search.aggregation.Aggregations;
 import com.liferay.portal.search.filter.ComplexQueryPartBuilderFactory;
@@ -28,7 +27,6 @@ import com.liferay.portal.search.script.Scripts;
 import com.liferay.portal.search.searcher.SearchRequestBuilder;
 import com.liferay.portal.search.significance.SignificanceHeuristics;
 import com.liferay.portal.search.sort.Sorts;
-import com.liferay.search.experiences.blueprint.parameter.SXPParameter;
 import com.liferay.search.experiences.blueprint.search.request.enhancer.SXPBlueprintSearchRequestEnhancer;
 import com.liferay.search.experiences.internal.blueprint.highlight.HighlightConverter;
 import com.liferay.search.experiences.internal.blueprint.parameter.SXPParameterData;
@@ -105,15 +103,6 @@ public class SXPBlueprintSearchRequestEnhancerImpl
 		SearchRequestBuilder searchRequestBuilder, SXPBlueprint sxpBlueprint,
 		SXPParameterData sxpParameterData) {
 
-		SXPParameter sxpParameter = sxpParameterData.getSXPParameterByName(
-			"system.excluded_search_request_body_contributors");
-
-		String[] names = null;
-
-		if (sxpParameter != null) {
-			names = (String[])sxpParameter.getValue();
-		}
-
 		if (ListUtil.isEmpty(_sxpSearchRequestBodyContributors)) {
 			return;
 		}
@@ -122,12 +111,6 @@ public class SXPBlueprintSearchRequestEnhancerImpl
 
 		for (SXPSearchRequestBodyContributor sxpSearchRequestBodyContributor :
 				_sxpSearchRequestBodyContributors) {
-
-			if (ArrayUtil.contains(
-					names, sxpSearchRequestBodyContributor.getName())) {
-
-				continue;
-			}
 
 			try {
 				sxpSearchRequestBodyContributor.contribute(
@@ -155,18 +138,6 @@ public class SXPBlueprintSearchRequestEnhancerImpl
 				searchContext -> searchContext),
 			sxpBlueprint);
 
-		// TODO From and size
-
-		searchRequestBuilder.emptySearchEnabled(
-			true
-		).excludeContributors(
-			"com.liferay.search.experiences.blueprint"
-		).explain(
-			_isExplain(sxpParameterData)
-		).includeResponseString(
-			_isIncludeResponseString(sxpParameterData)
-		);
-
 		_contributeSXPSearchRequestBodyContributors(
 			searchRequestBuilder, _expand(sxpBlueprint, sxpParameterData),
 			sxpParameterData);
@@ -185,30 +156,6 @@ public class SXPBlueprintSearchRequestEnhancerImpl
 					sxpParameterData)));
 
 		return sxpBlueprint2;
-	}
-
-	private boolean _isExplain(SXPParameterData sxpParameterData) {
-		SXPParameter sxpParameter = sxpParameterData.getSXPParameterByName(
-			"system.explain");
-
-		if (sxpParameter == null) {
-			return false;
-		}
-
-		return GetterUtil.getBoolean(sxpParameter.getValue());
-	}
-
-	private boolean _isIncludeResponseString(
-		SXPParameterData sxpParameterData) {
-
-		SXPParameter sxpParameter = sxpParameterData.getSXPParameterByName(
-			"system.include_response_string");
-
-		if (sxpParameter == null) {
-			return false;
-		}
-
-		return GetterUtil.getBoolean(sxpParameter.getValue());
 	}
 
 	@Reference

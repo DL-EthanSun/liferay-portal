@@ -186,7 +186,7 @@ public class InitialUpgradeExtender
 					});
 			}
 			catch (Exception exception) {
-				new UpgradeException(exception);
+				throw new UpgradeException(exception);
 			}
 		}
 

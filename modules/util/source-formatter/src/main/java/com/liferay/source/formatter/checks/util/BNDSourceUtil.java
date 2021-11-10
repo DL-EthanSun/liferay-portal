@@ -273,7 +273,7 @@ public class BNDSourceUtil {
 		"Liferay-Portal-Build-Number", "Liferay-Portal-Build-Time",
 		"Liferay-Portal-Code-Name", "Liferay-Portal-Parent-Build-Number",
 		"Liferay-Portal-Release-Info", "Liferay-Portal-Server-Info",
-		"Liferay-Portal-Version"
+		"Liferay-Portal-Version", "Liferay-Portal-Version-Display-Name"
 	};
 
 	private static final FileSystem _FILE_SYSTEM = FileSystems.getDefault();

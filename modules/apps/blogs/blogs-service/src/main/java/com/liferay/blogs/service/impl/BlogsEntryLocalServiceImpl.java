@@ -30,7 +30,6 @@ import com.liferay.blogs.exception.EntrySmallImageScaleException;
 import com.liferay.blogs.exception.EntryTitleException;
 import com.liferay.blogs.exception.EntryUrlTitleException;
 import com.liferay.blogs.model.BlogsEntry;
-import com.liferay.blogs.service.BlogsStatsUserLocalService;
 import com.liferay.blogs.service.base.BlogsEntryLocalServiceBaseImpl;
 import com.liferay.blogs.settings.BlogsGroupServiceSettings;
 import com.liferay.blogs.social.BlogsActivityKeys;
@@ -659,11 +658,6 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		_subscriptionLocalService.deleteSubscriptions(
 			entry.getCompanyId(), BlogsEntry.class.getName(),
 			entry.getEntryId());
-
-		// Statistics
-
-		_blogsStatsUserLocalService.updateStatsUser(
-			entry.getGroupId(), entry.getUserId(), entry.getDisplayDate());
 
 		// Asset
 
@@ -1450,9 +1444,6 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		entry = blogsEntryPersistence.update(entry);
 
 		// Statistics
-
-		_blogsStatsUserLocalService.updateStatsUser(
-			entry.getGroupId(), entry.getUserId(), entry.getDisplayDate());
 
 		AssetEntry assetEntry = _assetEntryLocalService.fetchEntry(
 			BlogsEntry.class.getName(), entryId);
@@ -2408,9 +2399,6 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	private volatile BlogsFileUploadsConfiguration
 		_blogsFileUploadsConfiguration;
-
-	@Reference
-	private BlogsStatsUserLocalService _blogsStatsUserLocalService;
 
 	@Reference
 	private ClassNameLocalService _classNameLocalService;

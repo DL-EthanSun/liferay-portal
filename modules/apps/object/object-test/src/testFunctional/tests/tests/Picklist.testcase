@@ -208,12 +208,19 @@ definition {
 	}
 
 	@description = "LPS-136595 - Verify it is possible to search for a Picklist"
-	@ignore = "Test Stub"
 	@priority = "4"
 	test CanSearchPicklist {
+		Picklist.addPicklistViaAPI(picklistName = "Picklist 1");
 
-		// TODO LPS-139754 CanSearchPicklist pending implementation
+		Picklist.addPicklistViaAPI(picklistName = "Test 2");
 
+		Picklist.gotoPicklists();
+
+		Picklist.searchPicklist(picklistName = "Test 2");
+
+		Picklist.assertPicklist(picklistName = "Test 2");
+
+		Picklist.assertPicklistNotPresent(picklistName = "Picklist 1");
 	}
 
 	@description = "LPS-136595 - Verify it is possible to search for a Picklist item"
@@ -281,21 +288,25 @@ definition {
 	}
 
 	@description = "LPS-136595 - Verify the empty state message when there is no Picklist"
-	@ignore = "Test Stub"
 	@priority = "3"
 	test EmptyStateMessageDisplayedWhenNoPicklist {
+		Picklist.gotoPicklists();
 
-		// TODO LPS-139751 EmptyStateMessageDisplayedWhenNoPicklist pending implementation
-
+		Picklist.assertEmptyStateMessageDisplayed();
 	}
 
 	@description = "LPS-136595 - Verify the empty state message when where is no items for a Picklist"
-	@ignore = "Test Stub"
 	@priority = "3"
 	test EmptyStateMessageDisplayedWhenNoPicklistItem {
+		Picklist.addPicklistViaAPI(picklistName = "Picklist Test");
 
-		// TODO LPS-139759 EmptyStateMessageDisplayedWhenNoPicklistItem pending implementation
+		Picklist.gotoPicklists();
 
+		Picklist.gotoPicklistView(picklistName = "Picklist Test");
+
+		Picklist.selectPickilistModalFrame();
+
+		Picklist.assertEmptyStateMessageDisplayed();
 	}
 
 	@description = "LPS-136595 - Verify that the translated Picklist item's name will be displayed on the Object layout"

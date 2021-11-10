@@ -2,3 +2,8 @@
 # Bundle Version 1.0.1
 #
 bb68d50b9fa50d3626f5676b7ebb26249cd5c2ee^..e16133318a1dd73dccddb271f40888fef7c77dea=LPS-140716 LPS-141013
+
+#
+# Bundle Version 1.1.0
+#
+e16133318a1dd73dccddb271f40888fef7c77dea^..acfef7c15b0fdb1586dddfa2c69854d6c1e2a02d=LPS-141905

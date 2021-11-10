@@ -1205,6 +1205,24 @@ definition {
 			PageEditor.waitForAutoSave();
 		}
 
+		if (isSet(numberOfSlides)) {
+			Type(
+				key_fieldLabel = "Number of Slides",
+				locator1 = "FormFields#NUMBER_FIELD",
+				value1 = "${numberOfSlides}");
+
+			Click(
+				key_sidebarButton = "Browser",
+				locator1 = "PageEditor#FRAGMENT_SIDEBAR_TITLE");
+
+			PageEditor.waitForAutoSave();
+
+			AssertTextEquals(
+				key_fieldLabel = "Number of Slides",
+				locator1 = "FormFields#NUMBER_FIELD",
+				value1 = "${numberOfSlides}");
+		}
+
 		if (isSet(numberOfTabs)) {
 			Type(
 				key_fieldLabel = "Number Of Tabs",
@@ -2668,14 +2686,15 @@ definition {
 			locator1 = "PageEditor#FRAGMENT_SIDEBAR_COLLECTION_PANEL_EXPANDED");
 	}
 
-	macro filterColletion {
-		Click(locator1 = "PageEditor#COLLECTION_ITEM_VIEW_COLLECTION_OPTIONS");
+	macro filterCollection {
+		PageEditor.gotoEllipsisMenuItemInItemSelector(
+			fieldLabel = "Collection",
+			menuItem = "Filter Collection");
 
-		Click(locator1 = "PageEditor#COLLECTION_ITEM_FILTER_COLLECTION");
-
-		PageEditor.selectGerenicField(
-			fieldLabel = "${fieldLabel}",
-			option = "${option}");
+		Select(
+			key_fieldLabel = "${fieldLabel}",
+			locator1 = "Select#GENERIC_SELECT_FIELD",
+			value1 = "${option}");
 
 		Button.click(button = "Apply");
 	}
@@ -2988,12 +3007,6 @@ definition {
 		Click(locator1 = "PageEditor#EXPERIENCE_PRIORITIZE_BUTTON");
 	}
 
-	macro publishPage {
-		AssertClick(
-			locator1 = "Button#SUBMIT",
-			value1 = "Publish");
-	}
-
 	macro removeFragment {
 		var key_fragmentName = "${fragmentName}";
 
@@ -3165,13 +3178,6 @@ definition {
 		AssertTextEquals(
 			locator1 = "PageEditor#PAGE_CONTENTS_CONTENT_FILTER_TOGGLE",
 			value1 = "${filter}");
-	}
-
-	macro selectGerenicField {
-		Select(
-			key_fieldLabel = "${fieldLabel}",
-			locator1 = "Select#GENERIC_SELECT_FIELD",
-			value1 = "${option}");
 	}
 
 	macro selectItemToPreviewWithObject {

@@ -15,6 +15,10 @@
 package com.liferay.site.initializer.extender.internal.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.asset.kernel.model.AssetCategory;
+import com.liferay.asset.kernel.model.AssetVocabulary;
+import com.liferay.asset.kernel.service.AssetCategoryLocalService;
+import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.commerce.inventory.model.CommerceInventoryWarehouse;
 import com.liferay.commerce.inventory.service.CommerceInventoryWarehouseLocalService;
 import com.liferay.commerce.product.model.CommerceCatalog;
@@ -40,6 +44,7 @@ import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.petra.io.StreamUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -114,39 +119,104 @@ public class BundleSiteInitializerTest {
 
 		try {
 			siteInitializer.initialize(group.getGroupId());
+			_assertAssetVocabularies(group);
+			_assertCommerceCatalogs(group);
+			_assertCommerceChannel(group);
+			_assertCommerceInventoryWarehouse(group);
+			_assertDDMStructure(group);
+			_assertDDMTemplate(group);
+			_assertDLFileEntry(group);
+			_assertFragmentEntries(group);
+			_assertLayoutPageTemplateEntry(group);
+			_assertLayouts(group);
+			_assertObjectDefinition(group);
+			_assertStyleBookEntry(group);
+
+			GroupLocalServiceUtil.deleteGroup(group);
 		}
 		finally {
 			ServiceContextThreadLocal.popServiceContext();
+
+			// TODO We should not need to delete the object definition manually
+			// because of DataGuardTestRule. However,
+			// ObjectDefinitionLocalServiceImpl#deleteObjectDefinition checks
+			// for PortalRunMode#isTestMode which is not returning true when the
+			// DataGuardTestRule runs.
+
+			ObjectDefinition objectDefinition =
+				_objectDefinitionLocalService.fetchObjectDefinition(
+					serviceContext.getCompanyId(),
+					"C_TestBundleSiteInitializer");
+
+			_objectDefinitionLocalService.deleteObjectDefinition(
+				objectDefinition.getObjectDefinitionId());
 		}
 
-		_assertCommerceCatalogs(group);
-		_assertCommerceChannel(group);
-		_assertCommerceInventoryWarehouse(group);
-		_assertDDMStructure(group);
-		_assertDDMTemplate(group);
-		_assertDLFileEntry(group);
-		_assertFragmentEntries(group);
-		_assertLayoutPageTemplateEntry(group);
-		_assertLayouts(group);
-		_assertObjectDefinition(group);
-		_assertStyleBookEntry(group);
-
-		GroupLocalServiceUtil.deleteGroup(group);
-
-		// TODO We should not need to delete the object definition manually
-		// because of DataGuardTestRule. However,
-		// ObjectDefinitionLocalServiceImpl#deleteObjectDefinition checks for
-		// PortalRunMode#isTestMode which is not returning true when the
-		// DataGuardTestRule runs.
-
-		ObjectDefinition objectDefinition =
-			_objectDefinitionLocalService.fetchObjectDefinition(
-				serviceContext.getCompanyId(), "C_TestBundleSiteInitializer");
-
-		_objectDefinitionLocalService.deleteObjectDefinition(
-			objectDefinition.getObjectDefinitionId());
-
 		bundle.uninstall();
+	}
+
+	private void _assertAssetCategories(Group group) throws Exception {
+		Group companyGroup = _groupLocalService.getCompanyGroup(
+			group.getCompanyId());
+
+		AssetCategory testAssetCategory1 =
+			_assetCategoryLocalService.
+				fetchAssetCategoryByExternalReferenceCode(
+					companyGroup.getGroupId(), "TESTCAT0001");
+
+		Assert.assertNotNull(testAssetCategory1);
+		Assert.assertEquals(
+			"Test Asset Category 1", testAssetCategory1.getName());
+
+		AssetCategory testAssetCategory2 =
+			_assetCategoryLocalService.fetchCategory(
+				companyGroup.getGroupId(), testAssetCategory1.getCategoryId(),
+				"Test Asset Category 2", testAssetCategory1.getVocabularyId());
+
+		Assert.assertNotNull(testAssetCategory2);
+		Assert.assertEquals(
+			"TESTCAT0002", testAssetCategory2.getExternalReferenceCode());
+
+		AssetCategory testAssetCategory3 =
+			_assetCategoryLocalService.
+				fetchAssetCategoryByExternalReferenceCode(
+					group.getGroupId(), "TESTCAT0003");
+
+		Assert.assertNotNull(testAssetCategory3);
+		Assert.assertEquals(
+			"Test Asset Category 3", testAssetCategory3.getName());
+
+		AssetCategory testAssetCategory4 =
+			_assetCategoryLocalService.fetchCategory(
+				group.getGroupId(), testAssetCategory3.getCategoryId(),
+				"Test Asset Category 4", testAssetCategory3.getVocabularyId());
+
+		Assert.assertNotNull(testAssetCategory4);
+		Assert.assertEquals(
+			"TESTCAT0004", testAssetCategory4.getExternalReferenceCode());
+	}
+
+	private void _assertAssetVocabularies(Group group) throws Exception {
+		Group companyGroup = _groupLocalService.getCompanyGroup(
+			group.getCompanyId());
+
+		AssetVocabulary testAssetVocabulary1 =
+			_assetVocabularyLocalService.fetchGroupVocabulary(
+				companyGroup.getGroupId(), "Test Asset Vocabulary 1");
+
+		Assert.assertNotNull(testAssetVocabulary1);
+		Assert.assertEquals(
+			"TESTVOC0001", testAssetVocabulary1.getExternalReferenceCode());
+
+		AssetVocabulary testAssetVocabulary2 =
+			_assetVocabularyLocalService.fetchGroupVocabulary(
+				group.getGroupId(), "Test Asset Vocabulary 2");
+
+		Assert.assertNotNull(testAssetVocabulary2);
+		Assert.assertEquals(
+			"TESTVOC0002", testAssetVocabulary2.getExternalReferenceCode());
+
+		_assertAssetCategories(group);
 	}
 
 	private void _assertCommerceCatalogs(Group group) throws Exception {
@@ -331,6 +401,12 @@ public class BundleSiteInitializerTest {
 	}
 
 	@Inject
+	private AssetCategoryLocalService _assetCategoryLocalService;
+
+	@Inject
+	private AssetVocabularyLocalService _assetVocabularyLocalService;
+
+	@Inject
 	private CommerceCatalogLocalService _commerceCatalogLocalService;
 
 	@Inject
@@ -351,6 +427,9 @@ public class BundleSiteInitializerTest {
 
 	@Inject
 	private FragmentEntryLocalService _fragmentEntryLocalService;
+
+	@Inject
+	private GroupLocalService _groupLocalService;
 
 	@Inject
 	private LayoutLocalService _layoutLocalService;

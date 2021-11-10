@@ -143,14 +143,14 @@ public class ContentDashboardAdminPortletTest {
 				_company.getCompanyId(), _company.getGroupId(),
 				_user.getUserId());
 
-		AssetVocabulary assetVocabulary =
+		AssetVocabulary audienceAssetVocabulary =
 			_assetVocabularyLocalService.fetchGroupVocabulary(
 				serviceContext.getScopeGroupId(), "audience");
 
 		AssetCategory assetCategory = _assetCategoryLocalService.addCategory(
 			_user.getUserId(), _company.getGroupId(),
-			RandomTestUtil.randomString(), assetVocabulary.getVocabularyId(),
-			serviceContext);
+			RandomTestUtil.randomString(),
+			audienceAssetVocabulary.getVocabularyId(), serviceContext);
 
 		AssetVocabulary childAssetVocabulary =
 			_assetVocabularyLocalService.fetchGroupVocabulary(
@@ -175,9 +175,11 @@ public class ContentDashboardAdminPortletTest {
 			Assert.assertEquals(
 				String.format(
 					"Content per %s and %s",
-					assetVocabulary.getTitle(LocaleUtil.US),
+					audienceAssetVocabulary.getTitle(LocaleUtil.US),
 					childAssetVocabulary.getTitle(LocaleUtil.US)),
-				_getAuditGraphTitle(_getMockLiferayPortletRenderRequest()));
+				_getAuditGraphTitle(
+					_getMockLiferayPortletRenderRequest(
+						audienceAssetVocabulary, childAssetVocabulary)));
 		}
 		finally {
 			_assetCategoryLocalService.deleteAssetCategory(assetCategory);
@@ -205,14 +207,14 @@ public class ContentDashboardAdminPortletTest {
 				_company.getCompanyId(), _company.getGroupId(),
 				_user.getUserId());
 
-		AssetVocabulary assetVocabulary =
+		AssetVocabulary audienceAssetVocabulary =
 			_assetVocabularyLocalService.fetchGroupVocabulary(
 				serviceContext.getScopeGroupId(), "audience");
 
 		AssetCategory assetCategory = _assetCategoryLocalService.addCategory(
 			_user.getUserId(), _company.getGroupId(),
-			RandomTestUtil.randomString(), assetVocabulary.getVocabularyId(),
-			serviceContext);
+			RandomTestUtil.randomString(),
+			audienceAssetVocabulary.getVocabularyId(), serviceContext);
 
 		try {
 			JournalTestUtil.addArticle(
@@ -223,7 +225,8 @@ public class ContentDashboardAdminPortletTest {
 
 			Assert.assertEquals(
 				String.format(
-					"Content per %s", assetVocabulary.getTitle(LocaleUtil.US)),
+					"Content per %s",
+					audienceAssetVocabulary.getTitle(LocaleUtil.US)),
 				_getAuditGraphTitle(_getMockLiferayPortletRenderRequest()));
 		}
 		finally {
@@ -247,7 +250,6 @@ public class ContentDashboardAdminPortletTest {
 	public void testGetContextWithRtlLanguageDirection() throws Exception {
 		MockLiferayPortletRenderRequest mockLiferayPortletRenderRequest =
 			_getMockLiferayPortletRenderRequest(
-				new String[] {"audience", "stage"},
 				LocaleUtil.fromLanguageId("ar_SA"));
 
 		Map<String, Object> data = _getData(mockLiferayPortletRenderRequest);
@@ -1280,14 +1282,14 @@ public class ContentDashboardAdminPortletTest {
 				_company.getCompanyId(), _company.getGroupId(),
 				_user.getUserId());
 
-		AssetVocabulary assetVocabulary =
+		AssetVocabulary audienceAssetVocabulary =
 			_assetVocabularyLocalService.fetchGroupVocabulary(
 				serviceContext.getScopeGroupId(), "audience");
 
 		AssetCategory assetCategory = _assetCategoryLocalService.addCategory(
 			_user.getUserId(), _company.getGroupId(),
-			RandomTestUtil.randomString(), assetVocabulary.getVocabularyId(),
-			serviceContext);
+			RandomTestUtil.randomString(),
+			audienceAssetVocabulary.getVocabularyId(), serviceContext);
 
 		try {
 			JournalArticle journalArticle = JournalTestUtil.addArticle(
@@ -1453,7 +1455,10 @@ public class ContentDashboardAdminPortletTest {
 						childAssetCategory.getCategoryId()
 					}));
 
-			Assert.assertTrue(_isSwapConfigurationEnabled("audience", "stage"));
+			Assert.assertTrue(
+				_isSwapConfigurationEnabled(
+					String.valueOf(assetVocabulary.getVocabularyId()),
+					String.valueOf(childAssetVocabulary.getVocabularyId())));
 		}
 		finally {
 			_assetCategoryLocalService.deleteAssetCategory(assetCategory);
@@ -1470,14 +1475,18 @@ public class ContentDashboardAdminPortletTest {
 				_company.getCompanyId(), _company.getGroupId(),
 				_user.getUserId());
 
-		AssetVocabulary assetVocabulary =
+		AssetVocabulary audienceAssetVocabulary =
 			_assetVocabularyLocalService.fetchGroupVocabulary(
 				serviceContext.getScopeGroupId(), "audience");
 
+		AssetVocabulary stageAssetVocabulary =
+			_assetVocabularyLocalService.fetchGroupVocabulary(
+				serviceContext.getScopeGroupId(), "stage");
+
 		AssetCategory assetCategory = _assetCategoryLocalService.addCategory(
 			_user.getUserId(), _company.getGroupId(),
-			RandomTestUtil.randomString(), assetVocabulary.getVocabularyId(),
-			serviceContext);
+			RandomTestUtil.randomString(),
+			audienceAssetVocabulary.getVocabularyId(), serviceContext);
 
 		try {
 			JournalTestUtil.addArticle(
@@ -1487,7 +1496,9 @@ public class ContentDashboardAdminPortletTest {
 					new long[] {assetCategory.getCategoryId()}));
 
 			Assert.assertFalse(
-				_isSwapConfigurationEnabled("audience", "stage"));
+				_isSwapConfigurationEnabled(
+					String.valueOf(audienceAssetVocabulary.getVocabularyId()),
+					String.valueOf(stageAssetVocabulary.getVocabularyId())));
 		}
 		finally {
 			_assetCategoryLocalService.deleteAssetCategory(assetCategory);
@@ -1532,7 +1543,9 @@ public class ContentDashboardAdminPortletTest {
 						childAssetCategory.getCategoryId()
 					}));
 
-			Assert.assertFalse(_isSwapConfigurationEnabled("audience"));
+			Assert.assertFalse(
+				_isSwapConfigurationEnabled(
+					String.valueOf(assetVocabulary.getVocabularyId())));
 		}
 		finally {
 			_assetCategoryLocalService.deleteAssetCategory(assetCategory);
@@ -1586,12 +1599,48 @@ public class ContentDashboardAdminPortletTest {
 			_getMockLiferayPortletRenderRequest()
 		throws Exception {
 
-		return _getMockLiferayPortletRenderRequest(
-			new String[] {"audience", "stage"}, LocaleUtil.US);
+		return _getMockLiferayPortletRenderRequest(LocaleUtil.US);
 	}
 
 	private MockLiferayPortletRenderRequest _getMockLiferayPortletRenderRequest(
-			String[] assetVocabularyNames, Locale locale)
+			AssetVocabulary assetVocabulary1, AssetVocabulary assetVocabulary2)
+		throws Exception {
+
+		return _getMockLiferayPortletRenderRequest(
+			new String[] {
+				String.valueOf(assetVocabulary1.getVocabularyId()),
+				String.valueOf(assetVocabulary2.getVocabularyId())
+			},
+			LocaleUtil.US);
+	}
+
+	private MockLiferayPortletRenderRequest _getMockLiferayPortletRenderRequest(
+			Locale locale)
+		throws Exception {
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				_company.getCompanyId(), _company.getGroupId(),
+				_user.getUserId());
+
+		AssetVocabulary assetVocabulary1 =
+			_assetVocabularyLocalService.fetchGroupVocabulary(
+				serviceContext.getScopeGroupId(), "audience");
+
+		AssetVocabulary assetVocabulary2 =
+			_assetVocabularyLocalService.fetchGroupVocabulary(
+				serviceContext.getScopeGroupId(), "stage");
+
+		return _getMockLiferayPortletRenderRequest(
+			new String[] {
+				String.valueOf(assetVocabulary1.getVocabularyId()),
+				String.valueOf(assetVocabulary2.getVocabularyId())
+			},
+			locale);
+	}
+
+	private MockLiferayPortletRenderRequest _getMockLiferayPortletRenderRequest(
+			String[] assetVocabularyIds, Locale locale)
 		throws Exception {
 
 		MockLiferayPortletRenderRequest mockLiferayPortletRenderRequest =
@@ -1621,8 +1670,7 @@ public class ContentDashboardAdminPortletTest {
 		PortletPreferences portletPreferences =
 			mockLiferayPortletRenderRequest.getPreferences();
 
-		portletPreferences.setValues(
-			"assetVocabularyNames", assetVocabularyNames);
+		portletPreferences.setValues("assetVocabularyIds", assetVocabularyIds);
 
 		return mockLiferayPortletRenderRequest;
 	}
@@ -1655,14 +1703,14 @@ public class ContentDashboardAdminPortletTest {
 		return themeDisplay;
 	}
 
-	private Boolean _isSwapConfigurationEnabled(String... assetVocabularyNames)
+	private Boolean _isSwapConfigurationEnabled(String... assetVocabularyIds)
 		throws Exception {
 
 		MVCPortlet mvcPortlet = (MVCPortlet)_portlet;
 
 		MockLiferayPortletRenderRequest mockLiferayPortletRenderRequest =
 			_getMockLiferayPortletRenderRequest(
-				assetVocabularyNames, LocaleUtil.US);
+				assetVocabularyIds, LocaleUtil.US);
 
 		mvcPortlet.render(
 			mockLiferayPortletRenderRequest,

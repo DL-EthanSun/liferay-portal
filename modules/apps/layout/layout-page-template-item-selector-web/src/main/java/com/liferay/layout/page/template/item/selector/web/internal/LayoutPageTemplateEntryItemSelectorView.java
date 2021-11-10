@@ -112,8 +112,7 @@ public class LayoutPageTemplateEntryItemSelectorView
 			itemSelectedEventName, search,
 			new LayoutPageTemplateEntryItemSelectorViewDescriptor(
 				(HttpServletRequest)servletRequest,
-				layoutPageTemplateEntryItemSelectorCriterion.getLayoutType(),
-				portletURL));
+				layoutPageTemplateEntryItemSelectorCriterion, portletURL));
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
@@ -339,11 +338,14 @@ public class LayoutPageTemplateEntryItemSelectorView
 		implements ItemSelectorViewDescriptor<LayoutPageTemplateEntry> {
 
 		public LayoutPageTemplateEntryItemSelectorViewDescriptor(
-			HttpServletRequest httpServletRequest, int layoutType,
+			HttpServletRequest httpServletRequest,
+			LayoutPageTemplateEntryItemSelectorCriterion
+				layoutPageTemplateEntryItemSelectorCriterion,
 			PortletURL portletURL) {
 
 			_httpServletRequest = httpServletRequest;
-			_layoutType = layoutType;
+			_layoutPageTemplateEntryItemSelectorCriterion =
+				layoutPageTemplateEntryItemSelectorCriterion;
 			_portletURL = portletURL;
 
 			_portletRequest = (PortletRequest)_httpServletRequest.getAttribute(
@@ -405,29 +407,37 @@ public class LayoutPageTemplateEntryItemSelectorView
 				searchContainer.setResults(
 					_layoutPageTemplateEntryService.
 						getLayoutPageTemplateEntries(
-							_themeDisplay.getScopeGroupId(), _layoutType,
+							_getGroupId(),
+							_layoutPageTemplateEntryItemSelectorCriterion.
+								getLayoutType(),
 							searchContainer.getStart(),
 							searchContainer.getEnd(),
 							searchContainer.getOrderByComparator()));
 				searchContainer.setTotal(
 					_layoutPageTemplateEntryService.
 						getLayoutPageTemplateEntriesCount(
-							_themeDisplay.getScopeGroupId(), _layoutType));
+							_getGroupId(),
+							_layoutPageTemplateEntryItemSelectorCriterion.
+								getLayoutType()));
 			}
 			else {
 				searchContainer.setResults(
 					_layoutPageTemplateEntryService.
 						getLayoutPageTemplateEntries(
-							_themeDisplay.getScopeGroupId(), keywords,
-							_layoutType, WorkflowConstants.STATUS_ANY,
+							_getGroupId(), keywords,
+							_layoutPageTemplateEntryItemSelectorCriterion.
+								getLayoutType(),
+							WorkflowConstants.STATUS_ANY,
 							searchContainer.getStart(),
 							searchContainer.getEnd(),
 							searchContainer.getOrderByComparator()));
 				searchContainer.setTotal(
 					_layoutPageTemplateEntryService.
 						getLayoutPageTemplateEntriesCount(
-							_themeDisplay.getScopeGroupId(), keywords,
-							_layoutType, WorkflowConstants.STATUS_ANY));
+							_getGroupId(), keywords,
+							_layoutPageTemplateEntryItemSelectorCriterion.
+								getLayoutType(),
+							WorkflowConstants.STATUS_ANY));
 			}
 
 			return searchContainer;
@@ -448,8 +458,27 @@ public class LayoutPageTemplateEntryItemSelectorView
 			return true;
 		}
 
+		private long _getGroupId() {
+			if (_groupId != null) {
+				return _groupId;
+			}
+
+			long groupId =
+				_layoutPageTemplateEntryItemSelectorCriterion.getGroupId();
+
+			if (groupId <= 0) {
+				groupId = _themeDisplay.getScopeGroupId();
+			}
+
+			_groupId = groupId;
+
+			return _groupId;
+		}
+
+		private Long _groupId;
 		private final HttpServletRequest _httpServletRequest;
-		private final int _layoutType;
+		private final LayoutPageTemplateEntryItemSelectorCriterion
+			_layoutPageTemplateEntryItemSelectorCriterion;
 		private final PortletRequest _portletRequest;
 		private final PortletURL _portletURL;
 		private final ThemeDisplay _themeDisplay;

@@ -20,6 +20,10 @@ html#{$cadmin-selector} {
 				width: 8px;
 			}
 
+			.lexicon-icon-question-circle {
+				font-size: 12px;
+			}
+
 			.custom-tooltip {
 				background-color: #fff;
 				border: 1px solid #ccc;
@@ -81,6 +85,19 @@ html#{$cadmin-selector} {
 			.pie-chart-wrapper {
 				display: flex;
 				justify-content: space-between;
+				position: relative;
+
+				&.pie-chart-wrapper--loading {
+					.pie-chart-wrapper--legend,
+					.pie-chart-wrapper--chart {
+						opacity: 0.6;
+						pointer-events: none;
+					}
+
+					.loading-animation {
+						top: 30%;
+					}
+				}
 
 				.pie-chart-wrapper--legend {
 					list-style: none;
@@ -128,6 +145,13 @@ html#{$cadmin-selector} {
 			}
 
 			.traffic-source-detail {
+				position: relative;
+
+				&--loading {
+					opacity: 0.6;
+					pointer-events: none;
+				}
+
 				thead > tr {
 					height: 40px;
 				}

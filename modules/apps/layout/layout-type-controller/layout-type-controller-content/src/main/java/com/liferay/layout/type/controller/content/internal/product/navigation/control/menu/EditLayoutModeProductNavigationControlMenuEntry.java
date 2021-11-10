@@ -142,8 +142,17 @@ public class EditLayoutModeProductNavigationControlMenuEntry
 				redirect, "p_l_back_url",
 				_portal.getLayoutFullURL(
 					themeDisplay.getLayout(), themeDisplay));
+			redirect = _http.setParameter(redirect, "p_l_mode", Constants.EDIT);
 
-			return _http.setParameter(redirect, "p_l_mode", Constants.EDIT);
+			long segmentsExperienceId = ParamUtil.getLong(
+				httpServletRequest, "p_s_e_id", -1);
+
+			if (segmentsExperienceId != -1) {
+				redirect = _http.setParameter(
+					redirect, "p_s_e_id", segmentsExperienceId);
+			}
+
+			return redirect;
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {

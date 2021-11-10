@@ -128,7 +128,7 @@ public class CommercePaymentRestrictionsPageClayTable
 			paymentRestrictions.add(
 				new PaymentRestriction(
 					country.getCountryId(),
-					country.getTitle(themeDisplay.getLanguageId()),
+					country.getTitle(themeDisplay.getLocale()),
 					_getFields(
 						commercePaymentMethodGroupRels, country.getCountryId(),
 						themeDisplay.getLanguageId())));

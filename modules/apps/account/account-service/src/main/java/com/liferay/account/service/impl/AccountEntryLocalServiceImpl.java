@@ -123,62 +123,9 @@ public class AccountEntryLocalServiceImpl
 
 	@Override
 	public AccountEntry activateAccountEntry(long accountEntryId)
-		throws Exception {
+		throws PortalException {
 
 		return activateAccountEntry(getAccountEntry(accountEntryId));
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #addAccountEntry(long, long, String, String, String[],
-	 *             byte[], String, String, int, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public AccountEntry addAccountEntry(
-			long userId, long parentAccountEntryId, String name,
-			String description, String[] domains, byte[] logoBytes, int status)
-		throws PortalException {
-
-		return addAccountEntry(
-			userId, parentAccountEntryId, name, description, domains, logoBytes,
-			null, AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS, status, null);
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #addAccountEntry(long, long, String, String, String[],
-	 *             byte[], String, String, int, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public AccountEntry addAccountEntry(
-			long userId, long parentAccountEntryId, String name,
-			String description, String[] domains, byte[] logoBytes, int status,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		return addAccountEntry(
-			userId, parentAccountEntryId, name, description, domains, logoBytes,
-			null, AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS, status,
-			serviceContext);
-	}
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x)
-	 */
-	@Deprecated
-	@Override
-	public AccountEntry addAccountEntry(
-			long userId, long parentAccountEntryId, String name,
-			String description, String[] domains, byte[] logoBytes,
-			String taxIdNumber, String type, int status,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		return addAccountEntry(
-			userId, parentAccountEntryId, name, description, domains, null,
-			logoBytes, taxIdNumber, type, status, serviceContext);
 	}
 
 	@Override
@@ -313,7 +260,7 @@ public class AccountEntryLocalServiceImpl
 
 	@Override
 	public AccountEntry deactivateAccountEntry(long accountEntryId)
-		throws Exception {
+		throws PortalException {
 
 		return deactivateAccountEntry(getAccountEntry(accountEntryId));
 	}
@@ -587,62 +534,9 @@ public class AccountEntryLocalServiceImpl
 			accountEntries, searchResponse.getTotalHits());
 	}
 
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #updateAccountEntry(Long, long, String, String, boolean,
-	 *             String[], byte[], String, int, ServiceContext)}
-	 */
-	@Deprecated
 	@Override
 	public AccountEntry updateAccountEntry(
-			Long accountEntryId, long parentAccountEntryId, String name,
-			String description, boolean deleteLogo, String[] domains,
-			byte[] logoBytes, int status)
-		throws PortalException {
-
-		return updateAccountEntry(
-			accountEntryId, parentAccountEntryId, name, description, deleteLogo,
-			domains, logoBytes, null, status, null);
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #updateAccountEntry(Long, long, String, String, boolean,
-	 *             String[], byte[], String, int, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public AccountEntry updateAccountEntry(
-			Long accountEntryId, long parentAccountEntryId, String name,
-			String description, boolean deleteLogo, String[] domains,
-			byte[] logoBytes, int status, ServiceContext serviceContext)
-		throws PortalException {
-
-		return updateAccountEntry(
-			accountEntryId, parentAccountEntryId, name, description, deleteLogo,
-			domains, logoBytes, null, status, serviceContext);
-	}
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x)
-	 */
-	@Deprecated
-	@Override
-	public AccountEntry updateAccountEntry(
-			Long accountEntryId, long parentAccountEntryId, String name,
-			String description, boolean deleteLogo, String[] domains,
-			byte[] logoBytes, String taxIdNumber, int status,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		return updateAccountEntry(
-			accountEntryId, parentAccountEntryId, name, description, deleteLogo,
-			domains, null, logoBytes, taxIdNumber, status, serviceContext);
-	}
-
-	@Override
-	public AccountEntry updateAccountEntry(
-			Long accountEntryId, long parentAccountEntryId, String name,
+			long accountEntryId, long parentAccountEntryId, String name,
 			String description, boolean deleteLogo, String[] domains,
 			String emailAddress, byte[] logoBytes, String taxIdNumber,
 			int status, ServiceContext serviceContext)

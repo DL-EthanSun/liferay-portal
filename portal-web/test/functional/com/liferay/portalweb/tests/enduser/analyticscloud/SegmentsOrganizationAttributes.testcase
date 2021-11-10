@@ -36,6 +36,7 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8548 | Test Summary: Add segment using an organization property 'date modified'"
+	@ignore = "true"
 	@priority = "4"
 	test CanCreateSegmentUsingOrganizationPropertyDateModified {
 		property portal.upstream = "quarantine";
@@ -94,6 +95,7 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8550 | Test Summary: Add segment using an organization property 'hierarchy path'"
+	@ignore = "true"
 	@priority = "4"
 	test CanCreateSegmentUsingOrganizationPropertyHierarchyPath {
 		property portal.upstream = "quarantine";
@@ -210,6 +212,7 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8549 | Test Summary: Add segment using an organization property 'name'"
+	@ignore = "true"
 	@priority = "4"
 	test CanCreateSegmentUsingOrganizationPropertyName {
 		property portal.upstream = "quarantine";
@@ -353,6 +356,7 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8551 | Test Summary: Add segment using an organization property 'organization'"
+	@ignore = "true"
 	@priority = "4"
 	test CanCreateSegmentUsingOrganizationPropertyOrganization {
 		property portal.upstream = "quarantine";
@@ -448,6 +452,7 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8552 | Test Summary: Add segment using an organization property 'parent organization'"
+	@ignore = "true"
 	@priority = "4"
 	test CanCreateSegmentUsingOrganizationPropertyParentOrganization {
 		property portal.upstream = "quarantine";
@@ -547,6 +552,7 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8553 | Test Summary: Add segment using an organization property 'type'"
+	@ignore = "true"
 	@priority = "4"
 	test CanCreateSegmentUsingOrganizationPropertyType {
 		property portal.upstream = "quarantine";

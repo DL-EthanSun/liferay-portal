@@ -77,6 +77,12 @@ public class FragmentCollectionActionDropdownItemsProvider {
 									_renderResponse.createResourceURL();
 
 							exportFragmentCompositionsAndFragmentEntriesURL.
+								setParameter(
+									"fragmentCollectionId",
+									String.valueOf(
+										_fragmentDisplayContext.
+											getFragmentCollectionId()));
+							exportFragmentCompositionsAndFragmentEntriesURL.
 								setResourceID(
 									"/fragment/export_fragment_collections");
 

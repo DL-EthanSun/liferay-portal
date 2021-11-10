@@ -15,18 +15,15 @@
 package com.liferay.account.service.impl;
 
 import com.liferay.account.constants.AccountActionKeys;
-import com.liferay.account.constants.AccountConstants;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.base.AccountEntryServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
-import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.permission.OrganizationPermission;
@@ -51,41 +48,23 @@ import org.osgi.service.component.annotations.Reference;
 )
 public class AccountEntryServiceImpl extends AccountEntryServiceBaseImpl {
 
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #addAccountEntry(long, long, String, String, String[],
-	 *             byte[], String, int, ServiceContext)}
-	 */
-	@Deprecated
 	@Override
-	public AccountEntry addAccountEntry(
-			long userId, long parentAccountEntryId, String name,
-			String description, String[] domains, byte[] logoBytes, int status)
+	public void activateAccountEntries(long[] accountEntryIds)
 		throws PortalException {
 
-		return addAccountEntry(
-			userId, parentAccountEntryId, name, description, domains, null,
-			logoBytes, null, AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS,
-			status, null);
+		for (long accountEntryId : accountEntryIds) {
+			activateAccountEntry(accountEntryId);
+		}
 	}
 
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #addAccountEntry(long, long, String, String, String[],
-	 *             byte[], String, int, ServiceContext)}
-	 */
-	@Deprecated
 	@Override
-	public AccountEntry addAccountEntry(
-			long userId, long parentAccountEntryId, String name,
-			String description, String[] domains, byte[] logoBytes, int status,
-			ServiceContext serviceContext)
+	public AccountEntry activateAccountEntry(long accountEntryId)
 		throws PortalException {
 
-		return addAccountEntry(
-			userId, parentAccountEntryId, name, description, domains, null,
-			logoBytes, null, AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS,
-			status, serviceContext);
+		_accountEntryModelResourcePermission.check(
+			getPermissionChecker(), accountEntryId, ActionKeys.UPDATE);
+
+		return accountEntryLocalService.activateAccountEntry(accountEntryId);
 	}
 
 	@Override
@@ -102,6 +81,52 @@ public class AccountEntryServiceImpl extends AccountEntryServiceBaseImpl {
 		return accountEntryLocalService.addAccountEntry(
 			userId, parentAccountEntryId, name, description, domains, email,
 			logoBytes, taxIdNumber, type, status, serviceContext);
+	}
+
+	@Override
+	public void deactivateAccountEntries(long[] accountEntryIds)
+		throws PortalException {
+
+		for (long accountEntryId : accountEntryIds) {
+			deactivateAccountEntry(accountEntryId);
+		}
+	}
+
+	@Override
+	public AccountEntry deactivateAccountEntry(long accountEntryId)
+		throws PortalException {
+
+		_accountEntryModelResourcePermission.check(
+			getPermissionChecker(), accountEntryId, ActionKeys.DELETE);
+
+		return accountEntryLocalService.deactivateAccountEntry(accountEntryId);
+	}
+
+	@Override
+	public void deleteAccountEntries(long[] accountEntryIds)
+		throws PortalException {
+
+		for (long accountEntryId : accountEntryIds) {
+			deleteAccountEntry(accountEntryId);
+		}
+	}
+
+	@Override
+	public void deleteAccountEntry(long accountEntryId) throws PortalException {
+		_accountEntryModelResourcePermission.check(
+			getPermissionChecker(), accountEntryId, ActionKeys.DELETE);
+
+		accountEntryLocalService.deleteAccountEntry(accountEntryId);
+	}
+
+	@Override
+	public AccountEntry fetchAccountEntry(long accountEntryId)
+		throws PortalException {
+
+		_accountEntryModelResourcePermission.check(
+			getPermissionChecker(), accountEntryId, ActionKeys.VIEW);
+
+		return accountEntryLocalService.fetchAccountEntry(accountEntryId);
 	}
 
 	@Override
@@ -126,11 +151,22 @@ public class AccountEntryServiceImpl extends AccountEntryServiceBaseImpl {
 	}
 
 	@Override
-	public BaseModelSearchResult<AccountEntry> searchAccountEntries(
-		String keywords, LinkedHashMap<String, Object> params, int cur,
-		int delta, String orderByField, boolean reverse) {
+	public AccountEntry getAccountEntry(long accountEntryId)
+		throws PortalException {
 
-		PermissionChecker permissionChecker = _getPermissionChecker();
+		_accountEntryModelResourcePermission.check(
+			getPermissionChecker(), accountEntryId, ActionKeys.VIEW);
+
+		return accountEntryLocalService.getAccountEntry(accountEntryId);
+	}
+
+	@Override
+	public BaseModelSearchResult<AccountEntry> searchAccountEntries(
+			String keywords, LinkedHashMap<String, Object> params, int cur,
+			int delta, String orderByField, boolean reverse)
+		throws PortalException {
+
+		PermissionChecker permissionChecker = getPermissionChecker();
 
 		if (params == null) {
 			params = new LinkedHashMap<>();
@@ -143,21 +179,50 @@ public class AccountEntryServiceImpl extends AccountEntryServiceBaseImpl {
 			orderByField, reverse);
 	}
 
-	private PermissionChecker _getPermissionChecker() {
-		try {
-			return getPermissionChecker();
-		}
-		catch (PrincipalException principalException) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(principalException, principalException);
-			}
+	@Override
+	public AccountEntry updateAccountEntry(AccountEntry accountEntry)
+		throws PortalException {
 
-			return PermissionThreadLocal.getPermissionChecker();
-		}
+		_accountEntryModelResourcePermission.check(
+			getPermissionChecker(), accountEntry, ActionKeys.UPDATE);
+
+		return accountEntryLocalService.updateAccountEntry(accountEntry);
 	}
 
-	private static final Log _log = LogFactoryUtil.getLog(
-		AccountEntryServiceImpl.class);
+	@Override
+	public AccountEntry updateAccountEntry(
+			long accountEntryId, long parentAccountEntryId, String name,
+			String description, boolean deleteLogo, String[] domains,
+			String emailAddress, byte[] logoBytes, String taxIdNumber,
+			int status, ServiceContext serviceContext)
+		throws PortalException {
+
+		_accountEntryModelResourcePermission.check(
+			getPermissionChecker(), accountEntryId, ActionKeys.UPDATE);
+
+		return accountEntryLocalService.updateAccountEntry(
+			accountEntryId, parentAccountEntryId, name, description, deleteLogo,
+			domains, emailAddress, logoBytes, taxIdNumber, status,
+			serviceContext);
+	}
+
+	@Override
+	public AccountEntry updateExternalReferenceCode(
+			long accountEntryId, String externalReferenceCode)
+		throws PortalException {
+
+		_accountEntryModelResourcePermission.check(
+			getPermissionChecker(), accountEntryId, ActionKeys.UPDATE);
+
+		return accountEntryLocalService.updateExternalReferenceCode(
+			accountEntryId, externalReferenceCode);
+	}
+
+	@Reference(
+		target = "(model.class.name=com.liferay.account.model.AccountEntry)"
+	)
+	private ModelResourcePermission<AccountEntry>
+		_accountEntryModelResourcePermission;
 
 	@Reference
 	private OrganizationPermission _organizationPermission;

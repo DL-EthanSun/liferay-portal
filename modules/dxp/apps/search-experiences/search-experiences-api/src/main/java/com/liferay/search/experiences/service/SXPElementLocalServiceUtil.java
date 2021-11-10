@@ -319,6 +319,10 @@ public class SXPElementLocalServiceUtil {
 		return getService().getSXPElements(start, end);
 	}
 
+	public static List<SXPElement> getSXPElements(long companyId) {
+		return getService().getSXPElements(companyId);
+	}
+
 	/**
 	 * Returns the number of sxp elements.
 	 *

@@ -92,6 +92,54 @@ definition {
 		}
 	}
 
+	@description = "This is a use case for LPS-92264."
+	@priority = "5"
+	test ViewAssetPublisherContent {
+		task ("Add web content") {
+			JSONWebcontent.addWebContent(
+				content = "WC Content",
+				groupName = "Guest",
+				title = '''<script>alert(123);</script>''');
+		}
+
+		task ("Add public layout") {
+			JSONLayout.addPublicLayout(
+				groupName = "Guest",
+				layoutName = "Asset Publisher Page");
+		}
+
+		task ("Add widget to public layout") {
+			JSONLayout.addWidgetToPublicLayout(
+				groupName = "Guest",
+				layoutName = "Asset Publisher Page",
+				widgetName = "Asset Publisher");
+		}
+
+		task ("Visit web content as guest") {
+			User.logoutPG();
+
+			Navigator.gotoPage(pageName = "Asset Publisher Page");
+
+			AssetPublisherPortlet.viewAssetDetailsPG(
+				assetContent = "WC Content",
+				assetTitle = '''<script>alert(123);</script>''');
+
+			AssertAlertNotPresent();
+		}
+
+		task ("Visit web content as Admin") {
+			User.loginPG();
+
+			Navigator.gotoPage(pageName = "Asset Publisher Page");
+
+			AssetPublisherPortlet.viewAssetDetailsPG(
+				assetContent = "WC Content",
+				assetTitle = '''<script>alert(123);</script>''');
+
+			AssertAlertNotPresent();
+		}
+	}
+
 	@description = "This is a use case for LPS-82204. View blogs entry with XSS custom abstract"
 	@priority = "5"
 	test ViewBlogsEntryWithXSSCustomAbstract {

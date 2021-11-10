@@ -16,11 +16,13 @@ package com.liferay.account.admin.web.internal.portlet.action;
 
 import com.liferay.account.constants.AccountPortletKeys;
 import com.liferay.account.model.AccountEntry;
-import com.liferay.account.service.AccountEntryLocalService;
+import com.liferay.account.service.AccountEntryService;
 import com.liferay.portal.kernel.model.Address;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.AddressLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
@@ -90,6 +92,8 @@ public class EditAccountEntryAddressMVCActionCommand
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
+		_checkPermission(actionRequest);
+
 		String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
 
 		Address accountEntryAddress = null;
@@ -109,8 +113,8 @@ public class EditAccountEntryAddressMVCActionCommand
 			long accountEntryId = ParamUtil.getLong(
 				actionRequest, "accountEntryId");
 
-			AccountEntry accountEntry =
-				_accountEntryLocalService.getAccountEntry(accountEntryId);
+			AccountEntry accountEntry = _accountEntryService.getAccountEntry(
+				accountEntryId);
 
 			long addressId = 0;
 
@@ -125,7 +129,7 @@ public class EditAccountEntryAddressMVCActionCommand
 				accountEntry.setDefaultShippingAddressId(addressId);
 			}
 
-			_accountEntryLocalService.updateAccountEntry(accountEntry);
+			_accountEntryService.updateAccountEntry(accountEntry);
 		}
 
 		String redirect = ParamUtil.getString(actionRequest, "redirect");
@@ -161,8 +165,26 @@ public class EditAccountEntryAddressMVCActionCommand
 			false, phoneNumber);
 	}
 
+	private void _checkPermission(ActionRequest actionRequest)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		_accountEntryModelResourcePermission.check(
+			themeDisplay.getPermissionChecker(),
+			ParamUtil.getLong(actionRequest, "accountEntryId"),
+			ActionKeys.UPDATE);
+	}
+
+	@Reference(
+		target = "(model.class.name=com.liferay.account.model.AccountEntry)"
+	)
+	private ModelResourcePermission<AccountEntry>
+		_accountEntryModelResourcePermission;
+
 	@Reference
-	private AccountEntryLocalService _accountEntryLocalService;
+	private AccountEntryService _accountEntryService;
 
 	@Reference
 	private AddressLocalService _addressLocalService;

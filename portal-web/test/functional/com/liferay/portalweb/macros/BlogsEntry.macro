@@ -350,6 +350,13 @@ definition {
 			locator1 = "BlogsEntry#ENTRY_COVER_IMAGE_UNPUBLISHED");
 	}
 
+	macro editCoverImageCaption {
+		Type(
+			key_editor = "coverImageCaption",
+			locator1 = "AlloyEditor#EDITOR",
+			value1 = "${captionField}");
+	}
+
 	macro editCustomURL {
 		if (isSet(automatic)) {
 			Click(locator1 = "Radio#AUTOMATIC_URL");
@@ -1019,6 +1026,12 @@ definition {
 					key_service = "youtube",
 					locator1 = "BlogsEntry#CONTENT_VIDEO");
 			}
+		}
+
+		if (isSet(entryCaption)) {
+			AssertTextEquals(
+				locator1 = "BlogsEntry#ENTRY_COVER_IMAGE_CAPTION",
+				value1 = "${entryCaption}");
 		}
 
 		if (isSet(entryContent)) {

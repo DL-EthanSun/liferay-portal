@@ -41,21 +41,55 @@ definition {
 	}
 
 	@description = "Verify that the user can not unpublish a workflow that is in use in a process and displays a error message."
-	@ignore = "Test Stub"
 	@priority = "5"
 	test CanNotUnpublishAWorkflowThatIsInUse {
+		KaleoFormsAdmin.addProcess();
 
-		// TODO LRQA-70685 CanNotUnpublishAWorkflowThatIsInUse pending implementation
+		KaleoFormsAdmin.createKaleoFormsProcess(
+			kfFieldSetName = "Contacts",
+			kfFormName = "Created Task Form",
+			kfProcessDescription = "Kaleo Forms Process Description",
+			kfProcessName = "Kaleo Forms Process",
+			workflowDefinitionTitle = "Single Approver",
+			workflowTask = "created");
 
+		KaleoFormsAdmin.addProcess();
+
+		KaleoFormsAdmin.addProcessDetails(
+			kfProcessDescription = "Kaleo Forms Process Description",
+			kfProcessName = "Kaleo Forms Process");
+
+		KaleoFormsAdmin.next();
+
+		KaleoFormsAdmin.chooseFieldSet(
+			kfFieldSetName = "Contacts",
+			kfProcessName = "Kaleo Forms Process");
+
+		KaleoFormsAdmin.next();
+
+		KaleoFormsAdmin.viewWorkflowCannotBeUnpublish(workflowDefinitionTitle = "Single Approver");
 	}
 
 	@description = "Verify that the user can only choose one Field Set."
-	@ignore = "Test Stub"
 	@priority = "4"
 	test CanOnlyChooseOneFieldSet {
+		KaleoFormsAdmin.addProcess();
 
-		// TODO LRQA-70678 CanOnlyChooseOneFIeldSet pending implementation
+		KaleoFormsAdmin.addProcessDetails(
+			kfProcessDescription = "Kaleo Forms Process Description",
+			kfProcessName = "Kaleo Forms Process");
 
+		KaleoFormsAdmin.next();
+
+		KaleoFormsAdmin.chooseFieldSet(
+			kfFieldSetName = "Contacts",
+			kfProcessName = "Kaleo Forms Process");
+
+		KaleoFormsAdmin.chooseFieldSet(
+			kfFieldSetName = "Inventory",
+			kfProcessName = "Kaleo Forms Process");
+
+		KaleoFormsAdmin.viewNotSelectedFieldSet(kfFieldSetName = "Contacts");
 	}
 
 	@description = "Verify that the user can only choose one Workflow."
@@ -68,39 +102,71 @@ definition {
 	}
 
 	@description = "Verify that the name field is required."
-	@ignore = "Test Stub"
 	@priority = "4"
 	test FieldNameIsRequired {
+		KaleoFormsAdmin.addProcess();
 
-		// TODO LRQA-70682 FieldNameIsRequired pending implementation
-
+		KaleoFormsAdmin.viewFieldRequired(
+			kfProcessName = "Kaleo Forms Process",
+			progressTitle = "Details");
 	}
 
 	@description = "Verify that the field set is required."
-	@ignore = "Test Stub"
 	@priority = "4"
 	test FieldSetIsRequired {
+		KaleoFormsAdmin.addProcess();
 
-		// TODO LRQA-70683 FieldSetIsRequired pending implementation
+		KaleoFormsAdmin.addProcessDetails(
+			kfProcessDescription = "Kaleo Forms Process Description",
+			kfProcessName = "Kaleo Forms Process");
 
+		KaleoFormsAdmin.next();
+
+		KaleoFormsAdmin.viewFieldRequired(
+			kfFieldSetName = "Contacts",
+			kfProcessName = "Kaleo Forms Process",
+			progressTitle = "Fields");
 	}
 
 	@description = "Verify that assign a form to the created task is required."
-	@ignore = "Test Stub"
 	@priority = "4"
 	test FormAssignedToCreatedTaskIsRequired {
+		KaleoFormsAdmin.addProcess();
 
-		// TODO LRQA-70686 FormAssignedToCreatedTaskIsRequired pending implementation
+		KaleoFormsAdmin.addProcessDetails(
+			kfProcessDescription = "Kaleo Forms Process Description",
+			kfProcessName = "Kaleo Forms Process");
 
+		KaleoFormsAdmin.next();
+
+		KaleoFormsAdmin.chooseFieldSet(
+			kfFieldSetName = "Contacts",
+			kfProcessName = "Kaleo Forms Process");
+
+		KaleoFormsAdmin.next();
+
+		KaleoFormsAdmin.chooseWorkflow(
+			kfProcessName = "Kaleo Forms Process",
+			workflowDefinitionTitle = "Single Approver");
+
+		KaleoFormsAdmin.next();
+
+		KaleoFormsAdmin.viewFieldRequired(
+			kfFormName = "Created Task Form",
+			kfProcessName = "Kaleo Forms Process",
+			progressTitle = "Forms",
+			workflowTask = "created");
 	}
 
 	@description = "Verify that the translation icon next to the -Name- and -Description- field is in English by default."
-	@ignore = "Test Stub"
 	@priority = "3"
 	test IconTranslationEnglishByDefault {
+		KaleoFormsAdmin.addProcess();
 
-		// TODO LRQA-70680 IconTranslationEnglishByDefault pending implementation
-
+		KaleoFormsAdmin.viewSelectedLanguage(
+			defaultLanguage = "en-US",
+			dropdownTagLanguage = "en-US",
+			infoLaguage = "Default");
 	}
 
 	@description = "Verify that a workflow added on the creation of a new process appears on Process Builder tab."
@@ -113,21 +179,72 @@ definition {
 	}
 
 	@description = "Verify that the progress bar is shown correctly."
-	@ignore = "Test Stub"
 	@priority = "4"
 	test ProgressBarIsShownCorrectly {
+		KaleoFormsAdmin.addProcess();
 
-		// TODO LRQA-70681 ProgressBarIsShownCorrectly pending implementation
+		KaleoFormsAdmin.addProcessDetails(
+			kfProcessDescription = "Kaleo Forms Process Description",
+			kfProcessName = "Kaleo Forms Process");
 
+		KaleoFormsAdmin.viewProgressBarIsShownCorrectly(
+			iconType = "circle",
+			stepProcess = "Details");
+
+		KaleoFormsAdmin.next();
+
+		KaleoFormsAdmin.chooseFieldSet(
+			kfFieldSetName = "Contacts",
+			kfProcessName = "Kaleo Forms Process");
+
+		KaleoFormsAdmin.viewProgressBarIsShownCorrectly(
+			iconType = "circle",
+			stepProcess = "Fields");
+
+		KaleoFormsAdmin.viewProgressBarIsShownCorrectly(
+			iconType = "check",
+			stepProcess = "Details");
+
+		KaleoFormsAdmin.next();
+
+		KaleoFormsAdmin.chooseWorkflow(
+			kfProcessName = "Kaleo Forms Process",
+			workflowDefinitionTitle = "Single Approver");
+
+		KaleoFormsAdmin.next();
+
+		KaleoFormsAdmin.viewProgressBarIsShownCorrectly(
+			iconType = "circle",
+			stepProcess = "Forms");
+
+		for (var steps : list "Details,Fields,Workflow") {
+			KaleoFormsAdmin.viewProgressBarIsShownCorrectly(
+				iconType = "check",
+				stepProcess = "${steps}");
+		}
 	}
 
 	@description = "Verify that the workflow is required."
-	@ignore = "Test Stub"
 	@priority = "4"
 	test WorkflowIsRequired {
+		KaleoFormsAdmin.addProcess();
 
-		// TODO LRQA-70684 WorkflowIsRequired pending implementation
+		KaleoFormsAdmin.addProcessDetails(
+			kfProcessDescription = "Kaleo Forms Process Description",
+			kfProcessName = "Kaleo Forms Process");
 
+		KaleoFormsAdmin.next();
+
+		KaleoFormsAdmin.chooseFieldSet(
+			kfFieldSetName = "Contacts",
+			kfProcessName = "Kaleo Forms Process");
+
+		KaleoFormsAdmin.next();
+
+		KaleoFormsAdmin.viewFieldRequired(
+			kfProcessName = "Kaleo Forms Process",
+			progressTitle = "Workflow",
+			workflowDefinitionTitle = "Single Approver");
 	}
 
 }

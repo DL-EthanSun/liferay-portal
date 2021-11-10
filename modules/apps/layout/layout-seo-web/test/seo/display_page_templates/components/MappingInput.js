@@ -23,7 +23,12 @@ const baseProps = {
 	fields: [
 		{key: 'field-1', label: 'Field 1', type: 'text'},
 		{key: 'field-2', label: 'Field 2', type: 'text'},
-		{key: 'field-3', label: 'Field 3', type: 'image'},
+		{
+			key: 'field-3',
+			label:
+				'Field 3: with }right curly brackets}}}}, line breaks by \r\nwin\r\n\r\n\r\n, \nlinux\n and \rold mac\r',
+			type: 'image',
+		},
 		{key: 'field-4', label: 'Field 4', type: 'text'},
 		{key: 'field-5', label: 'Field 5', type: 'text'},
 	],
@@ -33,7 +38,7 @@ const baseProps = {
 	selectedSource: {
 		classTypeLabel: 'Label source type',
 	},
-	value: 'field-2',
+	value: '${field-2}',
 };
 
 const renderComponent = (props) =>
@@ -95,16 +100,28 @@ describe('MappingInput', () => {
 			});
 
 			describe('and the user selects another field', () => {
-				beforeEach(() => {
+				it('adds the new field ${key:label} to the input', () => {
 					fireEvent.change(fieldSelect, {
 						target: {value: baseProps.fields[0].key},
 					});
 					fireEvent.click(mappingPanelButton);
+
+					expect(inputValue.value).toBe(
+						`$\{${baseProps.fields[0].key}:${baseProps.fields[0].label}} ${baseProps.value}`
+					);
 				});
 
-				it('adds the new field key to the input', () => {
+				it('adds the new field ${key:label} sanitized to the input', () => {
+					fireEvent.change(fieldSelect, {
+						target: {value: baseProps.fields[2].key},
+					});
+					fireEvent.click(mappingPanelButton);
+
+					const sanitizedLabel =
+						'Field 3: with right curly brackets, line breaks by win, linux and old mac';
+
 					expect(inputValue.value).toBe(
-						` $\{${baseProps.fields[0].key}} ${baseProps.value}`
+						`$\{${baseProps.fields[2].key}:${sanitizedLabel}} ${baseProps.value}`
 					);
 				});
 			});

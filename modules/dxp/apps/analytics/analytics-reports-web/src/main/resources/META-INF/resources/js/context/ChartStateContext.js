@@ -16,17 +16,51 @@ const CHANGE_TIME_SPAN_KEY = 'CHANGE_TIME_SPAN_KEY';
 const NEXT_TIME_SPAN = 'NEXT_TIME_SPAN';
 const PREV_TIME_SPAN = 'PREV_TIME_SPAN';
 const SET_LOADING = 'SET_LOADING';
+const SET_PIE_CHART_LOADING = 'SET_PIE_CHART_LOADING';
 
 const INITIAL_STATE = {
 	dataSet: {histogram: [], keyList: [], totals: []},
-	loading: true,
+	lineChartloading: true,
+	pieChartLoading: true,
 	publishDate: null,
 	timeRange: null,
 	timeSpanKey: null,
 	timeSpanOffset: 0,
 };
 
+/** 
+ * Example state
+ * {
+		"lineChartloading": false,
+		"pieChartloading": false,
+		"timeSpanOffset": 1,
+		"timeSpanKey": "last-7-days",
+		"dataSet": {
+			"keyList": [
+				"analyticsReportsHistoricalReads",
+				"analyticsReportsHistoricalViews"
+			],
+			"totals": {
+				"analyticsReportsHistoricalReads": 225000,
+				"analyticsReportsHistoricalViews": 144245
+			},
+			"histogram": [
+				{
+					"analyticsReportsHistoricalViews": 5412,
+					"label": "2020-02-02T00:00",
+					"analyticsReportsHistoricalReads": 5000
+				},
+				...
+			]
+		}
+	}
+ *
+ */
+
 const FALLBACK_DATA_SET_ITEM = {histogram: [], value: null};
+
+const LAST_7_DAYS = 'last-7-days';
+const LAST_30_DAYS = 'last-30-days';
 
 export const ChartDispatchContext = createContext(() => {});
 export const ChartStateContext = createContext(INITIAL_STATE);
@@ -54,76 +88,56 @@ export const ChartStateContextProvider = ({
 };
 
 export function useDateTitle() {
-	const {dataSet, timeRange} = useContext(ChartStateContext);
+	const {timeRange, timeSpanKey, timeSpanOffset} = useContext(
+		ChartStateContext
+	);
 
-	const {histogram} = dataSet;
+	const firstDate = new Date(timeRange.startDate.concat('T00:00:00'));
+	const lastDate = new Date(timeRange.endDate.concat('T00:00:00'));
 
-	if (histogram.length) {
-		const firstDateLabel = histogram[0].label;
-		const lastDateLabel = histogram[histogram.length - 1].label;
+	const increment =
+		timeSpanKey === LAST_7_DAYS ? 7 : timeSpanKey === LAST_30_DAYS ? 30 : 0;
+
+	// Default interval between firstDate and lastDate is 7 days.
+	// First date must be calculated from last date if timespan is 30.
+
+	if (timeSpanKey === LAST_30_DAYS) {
+		firstDate.setDate(firstDate.getDate() + 6 - (increment - 1));
+	}
+
+	if (timeSpanOffset > 0) {
+		lastDate.setDate(lastDate.getDate() - increment * timeSpanOffset);
+		firstDate.setDate(firstDate.getDate() - increment * timeSpanOffset);
 
 		return {
-			firstDate: new Date(firstDateLabel),
-			lastDate: new Date(lastDateLabel),
+			firstDate,
+			lastDate,
 		};
 	}
 	else {
 		return {
-			firstDate: new Date(timeRange.startDate),
-			lastDate: new Date(timeRange.endDate),
+			firstDate,
+			lastDate,
 		};
 	}
 }
 
 export function useIsPreviousPeriodButtonDisabled() {
-	const {dataSet, publishDate} = useContext(ChartStateContext);
+	const {publishDate} = useContext(ChartStateContext);
 
-	const {histogram} = dataSet;
+	const {firstDate} = useDateTitle();
 
-	if (histogram.length) {
-		const firstDateLabel = histogram[0].label;
+	const publishedDate = new Date(publishDate);
 
-		const firstDate = new Date(firstDateLabel);
-		const publishedDate = new Date(publishDate);
-
-		return firstDate < publishedDate;
-	}
-
-	return true;
+	return firstDate < publishedDate;
 }
 
-/**
- * {
-		"loading": false,
-		"timeSpanOffset": 1,
-		"timeSpanKey": "last-7-days",
-		"dataSet": {
-			"keyList": [
-				"analyticsReportsHistoricalReads",
-				"analyticsReportsHistoricalViews"
-			],
-			"totals": {
-				"analyticsReportsHistoricalReads": 225000,
-				"analyticsReportsHistoricalViews": 144245
-			},
-			"histogram": [
-				{
-					"analyticsReportsHistoricalViews": 5412,
-					"label": "2020-02-02T00:00",
-					"analyticsReportsHistoricalReads": 5000
-				},
-				...
-			]
-		}
-	}
- *
- */
 function reducer(state, action) {
 	let nextState;
 
 	switch (action.type) {
 		case ADD_DATA_SET_ITEMS:
-			nextState = setLoadingState(state);
+			nextState = setLineChartLoadingState(state);
 			nextState = [...action.payload.keys].reduce((state, key) => {
 				const dataSetItem =
 					action.payload.dataSetItems?.[key] ??
@@ -143,7 +157,7 @@ function reducer(state, action) {
 		case CHANGE_TIME_SPAN_KEY:
 			nextState = {
 				...state,
-				loading: true,
+				lineChartLoading: true,
 				timeSpanKey: action.payload.key,
 				timeSpanOffset: 0,
 			};
@@ -151,19 +165,25 @@ function reducer(state, action) {
 		case NEXT_TIME_SPAN:
 			nextState = {
 				...state,
-				loading: true,
+				lineChartLoading: true,
 				timeSpanOffset: state.timeSpanOffset - 1,
 			};
 			break;
 		case PREV_TIME_SPAN:
 			nextState = {
 				...state,
-				loading: true,
+				lineChartLoading: true,
 				timeSpanOffset: state.timeSpanOffset + 1,
 			};
 			break;
 		case SET_LOADING:
-			nextState = setLoadingState(state);
+			nextState = setLineChartLoadingState(state);
+			break;
+		case SET_PIE_CHART_LOADING:
+			nextState = {
+				...state,
+				pieChartLoading: action.payload.loading,
+			};
 			break;
 		default:
 			nextState = state;
@@ -176,13 +196,13 @@ function reducer(state, action) {
 /**
  * Declares the state as loading and resets the dataSet histogram values
  */
-function setLoadingState(state) {
+function setLineChartLoadingState(state) {
 
 	/**
 	 * The dataSet does not need to be reset
 	 */
 	if (!state.dataSet) {
-		return {...state, loading: true};
+		return {...state, lineChartLoading: true};
 	}
 
 	const histogram = state.dataSet.histogram.map((set) => {
@@ -221,7 +241,7 @@ function setLoadingState(state) {
 			histogram,
 			totals,
 		},
-		loading: true,
+		lineChartLoading: true,
 	};
 
 	return nextState;
@@ -320,7 +340,8 @@ function addDataSetItem(state, payload, validAnalyticsConnection) {
 	 * The dataSetItem is recognized as substitutive when the
 	 * previous state was in loading state.
 	 */
-	const previousDataSet = state.loading === true ? undefined : state.dataSet;
+	const previousDataSet =
+		state.lineChartLoading === true ? undefined : state.dataSet;
 
 	return {
 		...state,
@@ -332,6 +353,6 @@ function addDataSetItem(state, payload, validAnalyticsConnection) {
 			timeSpanComparator: payload.timeSpanComparator,
 			validAnalyticsConnection,
 		}),
-		loading: false,
+		lineChartLoading: false,
 	};
 }

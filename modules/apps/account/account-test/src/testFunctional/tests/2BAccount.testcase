@@ -378,6 +378,72 @@ definition {
 		}
 	}
 
+	@description = "This test sets a valid domain for a business account. Account Admin can only add users with a valid domain"
+	@priority = "3"
+	test AccountAdminCanOnlyAddUserWithValidDomain {
+		task ("Login as Super User and enable email domain") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "test@liferay.com",
+				userLoginFullName = "Test Test");
+
+			AccountConfiguration.enableAccountEmailDomain();
+		}
+
+		task ("Login as Account Admin and edit Account Name with a domain set") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "userea@liferay.com",
+				userLoginFullName = "userfn userln");
+
+			Navigator.gotoPage(pageName = "2B Account Page");
+
+			Accounts.editPG(
+				accountName = "Account Name",
+				domainNames = "gmail.com");
+		}
+
+		task ("Attempt to add user using the valid domain and assert that the new user is added into the account") {
+			Accounts.addNewUserWithSameDomain(
+				accountName = "Account Name",
+				assigneeName = "gmailUser",
+				emailDomainName = "gmail.com",
+				userEmailAddress = "userea@gmail.com",
+				userFirstName = "gmailUser",
+				userLastName = "gmailUser",
+				userScreenName = "User",
+				validDomainNames = "gmail.com");
+
+			Navigator.gotoPage(pageName = "2B Account Page");
+
+			LexiconEntry.gotoEntryMenuItemNoError(
+				menuItem = "Manage Users",
+				rowEntry = "Account Name");
+
+			AssertElementPresent(
+				key_userName = "gmailUser",
+				locator1 = "Account#USER_TABLE_NAME");
+		}
+
+		task ("As account admin attempt to add user using the invalid domain and assert that the new user is not added into the account") {
+			Accounts.addNewUserWithInvalidDomain(
+				accountName = "Account Name",
+				asAccountAdmin = "true",
+				assigneeName = "9teenUser",
+				emailDomainName = "9teen.com",
+				userEmailAddress = "userea@9teen.com",
+				userFirstName = "9teenUser",
+				userLastName = "9teenUser",
+				userScreenName = "User1");
+
+			Navigator.gotoPage(pageName = "2B Account Page");
+
+			LexiconEntry.gotoEntryMenuItemNoError(
+				menuItem = "Manage Users",
+				rowEntry = "Account Name");
+
+			LexiconEntry.viewNoEntry(rowEntry = "9teenUser 9teenUser");
+		}
+	}
+
 	@description = "This test asserts that an Account Admin can set a billing address to an Account."
 	@priority = "5"
 	test AccountAdminCanSetDefaultBillingAddress {
@@ -1079,54 +1145,52 @@ definition {
 	test CanOnlyViewBusinessAccountsWhenAllowedAccountTypeIsBusiness {
 		property test.name.skip.portal.instance = "2BAccount#CanOnlyViewBusinessAccountsWhenAllowedAccountTypeIsBusiness";
 
-		User.logoutAndLoginPG(
-			userLoginEmailAddress = "test@liferay.com",
-			userLoginFullName = "test test");
+		task ("Login as Super User to create a Person type account and assign Account Admin to it") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "test@liferay.com",
+				userLoginFullName = "test test");
 
-		for (var accountNumber : list "1,2") {
 			JSONAccountEntry.addAccountEntry(
-				accountEntryName = "Business ${accountNumber}",
-				accountEntryType = "Business");
-
-			Accounts.openAccountsAdmin();
-
-			LexiconEntry.gotoEntry(rowEntry = "Business ${accountNumber}");
-
-			Accounts.assignUsers(
-				accountName = "Business ${accountNumber}",
-				assigneeName = "userfn");
-		}
-
-		for (var accountNumber : list "3,4") {
-			JSONAccountEntry.addAccountEntry(
-				accountEntryName = "Person ${accountNumber}",
+				accountEntryName = "Person Account",
 				accountEntryType = "Person");
 
 			Accounts.openAccountsAdmin();
 
-			Accounts.gotoEdit(accountName = "Person ${accountNumber}");
+			Accounts.gotoEdit(accountName = "Person Account");
 
 			Accounts.assignExistingUserToPersonAccount(accountUserName = "userfn");
 		}
 
-		var siteName = TestCase.getSiteName(siteName = "${siteName}");
+		task ("View that all accounts are listed") {
+			Accounts.openAccountsAdmin();
 
-		ApplicationsMenu.gotoSite(site = "${siteName}");
-
-		Accounts.setAllowedAccountTypeInSiteSettings(allowedType = "Business");
-
-		User.logoutAndLoginPG(
-			userLoginEmailAddress = "userea@liferay.com",
-			userLoginFullName = "userfn userln");
-
-		Navigator.gotoPage(pageName = "2B Account Page");
-
-		for (var accountNumber : list "1,2") {
-			LexiconEntry.viewEntryName(rowEntry = "Business ${accountNumber}");
+			for (var accounts : list "Account Name,Person Account") {
+				LexiconEntry.viewEntryName(rowEntry = "${accounts}");
+			}
 		}
 
-		for (var accountNumber : list "3,4") {
-			LexiconEntry.viewNoEntry(rowEntry = "Person ${accountNumber}");
+		task ("Change account type settings to only allow the viewing of Business Type accounts") {
+			var siteName = TestCase.getSiteName(siteName = "${siteName}");
+
+			ApplicationsMenu.gotoSite(site = "${siteName}");
+
+			Accounts.setAllowedAccountTypeInSiteSettings(allowedType = "Business");
+		}
+
+		task ("Log back in as Account Administrator and assert that only the Business account is listed and the Person account is not") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "userea@liferay.com",
+				userLoginFullName = "userfn userln");
+
+			Navigator.gotoPage(pageName = "2B Account Page");
+
+			AssertElementPresent(
+				key_rowEntry = "Account Name",
+				locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME");
+
+			AssertElementNotPresent(
+				key_rowEntry = "Person Account",
+				locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME");
 		}
 	}
 
@@ -1135,54 +1199,52 @@ definition {
 	test CanOnlyViewPersonAccountsWhenAllowedAccountTypeIsPerson {
 		property test.name.skip.portal.instance = "2BAccount#CanOnlyViewPersonAccountsWhenAllowedAccountTypeIsPerson";
 
-		User.logoutAndLoginPG(
-			userLoginEmailAddress = "test@liferay.com",
-			userLoginFullName = "test test");
+		task ("Login as Super User to create a Person type account and assign Account Admin to it") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "test@liferay.com",
+				userLoginFullName = "test test");
 
-		for (var accountNumber : list "1,2") {
 			JSONAccountEntry.addAccountEntry(
-				accountEntryName = "Business ${accountNumber}",
-				accountEntryType = "Business");
-
-			Accounts.openAccountsAdmin();
-
-			LexiconEntry.gotoEntry(rowEntry = "Business ${accountNumber}");
-
-			Accounts.assignUsers(
-				accountName = "Business ${accountNumber}",
-				assigneeName = "userfn");
-		}
-
-		for (var accountNumber : list "3,4") {
-			JSONAccountEntry.addAccountEntry(
-				accountEntryName = "Person ${accountNumber}",
+				accountEntryName = "Person Account",
 				accountEntryType = "Person");
 
 			Accounts.openAccountsAdmin();
 
-			Accounts.gotoEdit(accountName = "Person ${accountNumber}");
+			Accounts.gotoEdit(accountName = "Person Account");
 
 			Accounts.assignExistingUserToPersonAccount(accountUserName = "userfn");
 		}
 
-		var siteName = TestCase.getSiteName(siteName = "${siteName}");
+		task ("View that all accounts are listed") {
+			Accounts.openAccountsAdmin();
 
-		ApplicationsMenu.gotoSite(site = "${siteName}");
-
-		Accounts.setAllowedAccountTypeInSiteSettings(allowedType = "Person");
-
-		User.logoutAndLoginPG(
-			userLoginEmailAddress = "userea@liferay.com",
-			userLoginFullName = "userfn userln");
-
-		Navigator.gotoPage(pageName = "2B Account Page");
-
-		for (var accountNumber : list "3,4") {
-			LexiconEntry.viewEntryName(rowEntry = "Person ${accountNumber}");
+			for (var accounts : list "Account Name,Person Account") {
+				LexiconEntry.viewEntryName(rowEntry = "${accounts}");
+			}
 		}
 
-		for (var accountNumber : list "1,2") {
-			LexiconEntry.viewNoEntry(rowEntry = "Business ${accountNumber}");
+		task ("Change account type settings to only allow the viewing of Person Type accounts") {
+			var siteName = TestCase.getSiteName(siteName = "${siteName}");
+
+			ApplicationsMenu.gotoSite(site = "${siteName}");
+
+			Accounts.setAllowedAccountTypeInSiteSettings(allowedType = "Person");
+		}
+
+		task ("Log back in as Account Administrator and assert that the Business account is not visible and only Person Account is listed") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "userea@liferay.com",
+				userLoginFullName = "userfn userln");
+
+			Navigator.gotoPage(pageName = "2B Account Page");
+
+			AssertElementNotPresent(
+				key_rowEntry = "Account Name",
+				locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME");
+
+			AssertElementPresent(
+				key_rowEntry = "Person Account",
+				locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME");
 		}
 	}
 

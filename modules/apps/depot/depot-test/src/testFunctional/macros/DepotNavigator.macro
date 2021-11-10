@@ -54,6 +54,35 @@ definition {
 		}
 	}
 
+	macro gotoDepotAdminViaBreadcrumb {
+		if (isSet(portletName)) {
+			AssertTextEquals(
+				locator1 = "Breadcrumb#BREADCRUMB_ENTRY_ACTIVE_ENTRY",
+				value1 = "${portletName}");
+
+			Click(
+				key_breadcrumbName = "${depotName}",
+				locator1 = "Breadcrumb#BREADCRUMB_ENTRY_LINK");
+
+			AssertTextEquals(
+				locator1 = "Breadcrumb#BREADCRUMB_ENTRY_ACTIVE_ENTRY",
+				value1 = "${depotName}");
+
+			AssertElementNotPresent(locator1 = "ProductMenu#TOGGLE");
+		}
+		else {
+			AssertTextEquals(
+				locator1 = "Breadcrumb#BREADCRUMB_ENTRY_ACTIVE_ENTRY",
+				value1 = "${depotName}");
+		}
+
+		Click(
+			key_breadcrumbName = "Asset Libraries",
+			locator1 = "Breadcrumb#BREADCRUMB_ENTRY_LINK");
+
+		LexiconEntry.viewEntryName(rowEntry = "${depotName}");
+	}
+
 	macro gotoDepotPortlet {
 		if (isSet(listView)) {
 			var key_listEntry = "${depotName}";
@@ -300,6 +329,12 @@ definition {
 		var depotId = JSONGroupAPI._getDepotIdByName(depotName = "${depotName}");
 
 		Navigator.openWithAppendToBaseURL(urlAppend = "group/asset-library-${depotId}-staging/~/control_panel/manage?p_p_id=com_liferay_staging_processes_web_portlet_StagingProcessesPortlet");
+	}
+
+	macro openDepotTranslationProcesses {
+		var depotId = JSONGroupAPI._getDepotIdByName(depotName = "${depotName}");
+
+		Navigator.openWithAppendToBaseURL(urlAppend = "group/asset-library-${depotId}/~/control_panel/manage?p_p_id=com_liferay_translation_web_internal_portlet_TranslationPortlet");
 	}
 
 	macro openDepotWebContentAdmin {

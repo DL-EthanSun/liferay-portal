@@ -673,17 +673,15 @@ public class FragmentEntryConfigurationParserImpl
 	}
 
 	private JSONObject _getInfoDisplayObjectEntryJSONObject(String value) {
-		if (Validator.isNull(value)) {
+		if (Validator.isNull(value) ||
+			Objects.equals(value, JSONFactoryUtil.getNullJSON())) {
+
 			return JSONFactoryUtil.createJSONObject();
 		}
 
 		try {
 			JSONObject configurationValueJSONObject =
 				JSONFactoryUtil.createJSONObject(value);
-
-			if (configurationValueJSONObject.length() == 0) {
-				return null;
-			}
 
 			JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
 				JSONFactoryUtil.looseSerialize(

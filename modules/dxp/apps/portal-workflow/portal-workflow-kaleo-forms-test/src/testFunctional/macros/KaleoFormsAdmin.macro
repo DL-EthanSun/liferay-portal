@@ -208,6 +208,38 @@ definition {
 		WaitForLiferayEvent.initializeLiferayEventLog();
 	}
 
+	macro createKaleoFormsProcess {
+		KaleoFormsAdmin.addProcessDetails(
+			kfProcessDescription = "${kfProcessDescription}",
+			kfProcessName = "${kfProcessName}");
+
+		KaleoFormsAdmin.next();
+
+		KaleoFormsAdmin.chooseFieldSet(
+			kfFieldSetName = "${kfFieldSetName}",
+			kfProcessName = "${kfProcessName}");
+
+		KaleoFormsAdmin.next();
+
+		KaleoFormsAdmin.chooseWorkflow(
+			kfProcessName = "${kfProcessName}",
+			workflowDefinitionTitle = "${workflowDefinitionTitle}");
+
+		KaleoFormsAdmin.next();
+
+		KaleoFormsAdmin.assignForm(
+			kfProcessName = "${kfProcessName}",
+			workflowTask = "${workflowTask}");
+
+		KaleoFormsAdmin.addForm(kfFormName = "${kfFormName}");
+
+		KaleoFormsAdmin.saveForm();
+
+		KaleoFormsAdmin.chooseForm(kfFormName = "${kfFormName}");
+
+		KaleoFormsAdmin.saveProcess(kfProcessName = "${kfProcessName}");
+	}
+
 	macro deactivateWorkflow {
 		LexiconEntry.gotoEntryMenuItemNoError(
 			menuItem = "Unpublish",
@@ -608,6 +640,77 @@ definition {
 		Click(locator1 = "Icon#CLOSE");
 	}
 
+	macro viewFieldRequired {
+		if ("${progressTitle}" == "Details") {
+			KaleoFormsAdmin.viewNewProcessProgressBar(
+				kfProgressName = "${progressTitle}",
+				kfProgressStep = "1");
+
+			AssertElementPresent(locator1 = "KaleoFormsAdminEditProcess#FIELD_NAME_REQUIRED");
+
+			AssertElementPresent(locator1 = "KaleoFormsAdminEditProcess#NEXT_BUTTON_INACTIVE");
+
+			Type(
+				key_fieldName = "name",
+				locator1 = "FormFields#TEXT_FIELD",
+				value1 = "${kfProcessName}");
+
+			AssertElementPresent(locator1 = "Button#NEXT");
+		}
+
+		else if ("${progressTitle}" == "Fields") {
+			KaleoFormsAdmin.viewNewProcessProgressBar(
+				kfProgressName = "${progressTitle}",
+				kfProgressStep = "2");
+
+			AssertElementPresent(locator1 = "KaleoFormsAdminEditProcess#NEXT_BUTTON_INACTIVE");
+
+			KaleoFormsAdmin.chooseFieldSet(
+				kfFieldSetName = "${kfFieldSetName}",
+				kfProcessName = "${kfProcessName}");
+
+			AssertElementPresent(locator1 = "Button#NEXT");
+		}
+
+		else if ("${progressTitle}" == "Workflow") {
+			KaleoFormsAdmin.viewNewProcessProgressBar(
+				kfProgressName = "${progressTitle}",
+				kfProgressStep = "3");
+
+			AssertElementPresent(locator1 = "KaleoFormsAdminEditProcess#NEXT_BUTTON_INACTIVE");
+
+			KaleoFormsAdmin.chooseWorkflow(
+				kfProcessName = "${kfProcessName}",
+				workflowDefinitionTitle = "${workflowDefinitionTitle}");
+
+			AssertElementPresent(locator1 = "Button#NEXT");
+		}
+
+		else {
+			KaleoFormsAdmin.viewNewProcessProgressBar(
+				kfProgressName = "${progressTitle}",
+				kfProgressStep = "4");
+
+			AssertElementPresent(locator1 = "KaleoFormsAdminEditProcess#SAVE_BUTTON_INACTIVE");
+
+			KaleoFormsAdmin.assignForm(
+				kfProcessName = "${kfProcessName}",
+				workflowTask = "${workflowTask}");
+
+			KaleoFormsAdmin.addForm(kfFormName = "${kfFormName}");
+
+			KaleoFormsAdmin.saveForm();
+
+			KaleoFormsAdmin.chooseForm(kfFormName = "${kfFormName}");
+
+			AssertElementPresent(locator1 = "Button#SAVE");
+
+			KaleoFormsAdmin.saveProcess(kfProcessName = "${kfProcessName}");
+
+			Alert.viewSuccessMessage();
+		}
+	}
+
 	macro viewFormEdit {
 		LexiconEntry.gotoEntryMenuItem(
 			menuItem = "Edit Form",
@@ -670,6 +773,13 @@ definition {
 
 	macro viewNoPublishedWorkflowDefinitions {
 		AssertVisible(locator1 = "KaleoFormsAdmin#KALEO_WORKFLOW_PUBLISHED_EMPTY_MESSAGE");
+	}
+
+	macro viewNotSelectedFieldSet {
+		AssertElementNotPresent(
+			key_kfFieldSetName = "${kfFieldSetName}",
+			locator1 = "KaleoFormsAdminEditProcess#SELECTED_FIELD_SET",
+			value1 = "${key_kfFieldSetName}");
 	}
 
 	macro viewNoUnpublishedWorkflowDefinitions {
@@ -830,6 +940,13 @@ definition {
 		KaleoFormsAdmin.next();
 	}
 
+	macro viewProgressBarIsShownCorrectly {
+		AssertElementPresent(
+			key_iconType = "${iconType}",
+			key_stepProcess = "${stepProcess}",
+			locator1 = "KaleoFormsAdminEditProcess#FORM_NAVIGATOR_MULTI_STEP_PROGRESS_BAR");
+	}
+
 	macro viewPublishedWorkflowDefinitions {
 		AssertClick(
 			locator1 = "KaleoFormsAdminEditProcess#WORKFLOW_NAVIGATION_PUBLISHED_TAB",
@@ -842,6 +959,26 @@ definition {
 		AssertTextEquals(
 			locator1 = "KaleoFormsAdminEditProcess#SELECTED_FIELD_SET",
 			value1 = "${kfFieldSetName}");
+	}
+
+	macro viewSelectedLanguage {
+		Click(
+			key_locale = "${defaultLanguage}",
+			locator1 = "Translation#CURRENT_LOCALE_NAME");
+
+		AssertElementPresent(
+			key_infoLaguage = "${infoLaguage}",
+			key_tagLanguage = "${dropdownTagLanguage}",
+			locator1 = "KaleoFormsAdminEditProcess#DROPDOWN_LANGUAGE");
+
+		Click(
+			key_locale = "${defaultLanguage}",
+			locator1 = "Translation#CURRENT_LOCALE_DESCRIPTION");
+
+		AssertElementPresent(
+			key_infoLaguage = "${infoLaguage}",
+			key_tagLanguage = "${dropdownTagLanguage}",
+			locator1 = "KaleoFormsAdminEditProcess#DROPDOWN_LANGUAGE");
 	}
 
 	macro viewSelectedWorkflow {
@@ -873,6 +1010,14 @@ definition {
 		AssertClick(
 			locator1 = "KaleoFormsAdminEditProcess#WORKFLOW_NAVIGATION_UNPUBLISHED_TAB",
 			value1 = "Unpublished");
+	}
+
+	macro viewWorkflowCannotBeUnpublish {
+		LexiconEntry.gotoEntryMenuItemNoError(
+			menuItem = "Unpublish",
+			rowEntry = "${workflowDefinitionTitle}");
+
+		Alert.viewErrorMessage(errorMessage = "Unable to delete the workflow definition that is in use.");
 	}
 
 }

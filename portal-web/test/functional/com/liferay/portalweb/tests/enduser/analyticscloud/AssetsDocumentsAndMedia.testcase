@@ -46,6 +46,7 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8419 | Test Summary: Document asset appears on list shows pages that the document exists on"
+	@ignore = "true"
 	@priority = "5"
 	test AssertAppearsOnListShowsPagesDocumentsExists {
 		property portal.upstream = "quarantine";
@@ -105,6 +106,7 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8394 | Test Summary: Assert 180 day time filter in Documents and Media"
+	@ignore = "true"
 	@priority = "3"
 	test AssertDocumentsAndMediaPageTImeFilter180Days {
 		property portal.upstream = "quarantine";
@@ -138,6 +140,7 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8402 | Test Summary: Documents audience card shows expected amount of know and anonymous individuals"
+	@ignore = "true"
 	@priority = "5"
 	test AudienceCardShowsExpectedAmountKnowAndAnonymousIndividualsInDM {
 		property portal.upstream = "quarantine";
@@ -218,6 +221,7 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8403 | Test Summary: Documents audience card shows expected amount of segmented and unsegmented individuals"
+	@ignore = "true"
 	@priority = "5"
 	test AudienceCardShowsExpectedAmountSegmentedAndUnsegmentedInDM {
 		property portal.upstream = "quarantine";
@@ -306,6 +310,7 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8395 | Test Summary: Custom Range time filter in Documents and Media assets page"
+	@ignore = "true"
 	@priority = "4"
 	test CanAssertDocumentsAndMediaTimeFilterCustom {
 		property portal.upstream = "quarantine";
@@ -449,6 +454,7 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8412 | Test Summary: Documents location card shows downloads by the expected location"
+	@ignore = "true"
 	@priority = "5"
 	test DocumentsLocationCardShowsDownloadsByExpectedLocation {
 		property portal.upstream = "quarantine";
@@ -690,6 +696,7 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8115 | Test Summary: Assert document list shows all of the documents and media assets in a list"
+	@ignore = "true"
 	@priority = "5"
 	test ViewAllDocumentsAndMediaShownInAssetList {
 		property portal.upstream = "quarantine";

@@ -304,23 +304,33 @@ public abstract class UpgradeProcess
 		throws Exception {
 
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
+			DatabaseMetaData databaseMetaData = connection.getMetaData();
+			DB db = DBManagerUtil.getDB();
+			DBInspector dbInspector = new DBInspector(connection);
 			String tableName = getTableName(tableClass);
 
-			DatabaseMetaData databaseMetaData = connection.getMetaData();
-			DBInspector dbInspector = new DBInspector(connection);
+			ResultSet resultSet1 = null;
 
-			try (ResultSet resultSet1 = databaseMetaData.getPrimaryKeys(
+			if (db.getDBType() == DBType.ORACLE) {
+				resultSet1 = databaseMetaData.getIndexInfo(
 					dbInspector.getCatalog(), dbInspector.getSchema(),
-					tableName);
-				ResultSet resultSet2 = databaseMetaData.getIndexInfo(
+					dbInspector.normalizeName(tableName), false, true);
+			}
+			else {
+				resultSet1 = databaseMetaData.getIndexInfo(
 					dbInspector.getCatalog(), dbInspector.getSchema(),
-					dbInspector.normalizeName(tableName), false, false)) {
+					dbInspector.normalizeName(tableName), false, false);
+			}
+
+			try (ResultSet resultSet2 = databaseMetaData.getPrimaryKeys(
+					dbInspector.getCatalog(), dbInspector.getSchema(),
+					tableName)) {
 
 				Set<String> primaryKeyNames = new HashSet<>();
 
-				while (resultSet1.next()) {
+				while (resultSet2.next()) {
 					String primaryKeyName = StringUtil.toUpperCase(
-						resultSet1.getString("PK_NAME"));
+						resultSet2.getString("PK_NAME"));
 
 					if (primaryKeyName != null) {
 						primaryKeyNames.add(primaryKeyName);
@@ -329,9 +339,9 @@ public abstract class UpgradeProcess
 
 				Map<String, Set<String>> columnNamesMap = new HashMap<>();
 
-				while (resultSet2.next()) {
+				while (resultSet1.next()) {
 					String indexName = StringUtil.toUpperCase(
-						resultSet2.getString("INDEX_NAME"));
+						resultSet1.getString("INDEX_NAME"));
 
 					if ((indexName == null) ||
 						primaryKeyNames.contains(indexName)) {
@@ -349,7 +359,7 @@ public abstract class UpgradeProcess
 
 					columnNames.add(
 						StringUtil.toUpperCase(
-							resultSet2.getString("COLUMN_NAME")));
+							resultSet1.getString("COLUMN_NAME")));
 				}
 
 				for (Alterable alterable : alterables) {
@@ -406,6 +416,11 @@ public abstract class UpgradeProcess
 					_log.warn(
 						"Successfully recreated and upgraded table " +
 							tableName);
+				}
+			}
+			finally {
+				if (resultSet1 != null) {
+					resultSet1.close();
 				}
 			}
 		}
@@ -570,21 +585,19 @@ public abstract class UpgradeProcess
 	}
 
 	protected void removePrimaryKey(String tableName) throws Exception {
-		DatabaseMetaData databaseMetaData = connection.getMetaData();
+		DB db = DBManagerUtil.getDB();
 
 		DBInspector dbInspector = new DBInspector(connection);
 
 		String normalizedTableName = dbInspector.normalizeName(
-			tableName, databaseMetaData);
+			tableName, connection.getMetaData());
 
-		DB db = DBManagerUtil.getDB();
+		if ((db.getDBType() == DBType.SQLSERVER) ||
+			(db.getDBType() == DBType.SYBASE)) {
 
-		DBType dbType = db.getDBType();
-
-		if ((dbType == DBType.SQLSERVER) || (dbType == DBType.SYBASE)) {
 			String primaryKeyConstraintName = null;
 
-			if (dbType == DBType.SQLSERVER) {
+			if (db.getDBType() == DBType.SQLSERVER) {
 				try (PreparedStatement preparedStatement =
 						connection.prepareStatement(
 							StringBundler.concat(

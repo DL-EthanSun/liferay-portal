@@ -1116,13 +1116,44 @@ definition {
 	}
 
 	@description = "This is a test for LPS-136783. It checks that a normal site member cannot edit someone else's blog."
-	@ignore = "true"
 	@priority = "3"
 	test CannotEditEntryWhenUserHasNoPermissions {
-		property portal.acceptance = "false";
+		property custom.properties = "jsonws.web.service.paths.excludes=";
 
-		// TODO LPS-136783 CannotEditEntryWhenUserHasNoPermissions pending implementation
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Blogs Page");
 
+		JSONLayout.addWidgetToPublicLayout(
+			column = "1",
+			groupName = "Guest",
+			layoutName = "Blogs Page",
+			widgetName = "Blogs");
+
+		JSONBlog.addEntry(
+			entryContent = "Blogs Entry Content",
+			entryTitle = "Blogs Entry Title");
+
+		JSONUser.addUser(
+			userEmailAddress = "userea@liferay.com",
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn");
+
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
+
+		User.logoutAndLoginPG(
+			userLoginEmailAddress = "userea@liferay.com",
+			userLoginFullName = "userfn userln");
+
+		Navigator.gotoPage(pageName = "Blogs Page");
+
+		AssertElementNotPresent(
+			key_entryTitle = "Blogs Entry Title",
+			locator1 = "Blogs#WIDGET_VIEW_ENTRY_ELLIPSIS");
 	}
 
 	@description = "This is a test for LPS-136784. It checks that a user cannot edit his own comment."

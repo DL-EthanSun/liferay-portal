@@ -10,12 +10,17 @@
  */
 
 import ClayButton from '@clayui/button';
+import ClayLoadingIndicator from '@clayui/loading-indicator';
 import {useStateSafe} from '@liferay/frontend-js-react-web';
 import className from 'classnames';
 import PropTypes from 'prop-types';
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 import {Cell, Pie, PieChart, Tooltip} from 'recharts';
 
+import {
+	ChartDispatchContext,
+	ChartStateContext,
+} from '../context/ChartStateContext';
 import ConnectionContext from '../context/ConnectionContext';
 import {StoreDispatchContext, StoreStateContext} from '../context/StoreContext';
 import {numberFormat} from '../utils/numberFormat';
@@ -52,20 +57,54 @@ export default function TrafficSources({dataProvider, onTrafficSourceClick}) {
 
 	const dispatch = useContext(StoreDispatchContext);
 
+	const chartDispatch = useContext(ChartDispatchContext);
+
 	const {languageTag, publishedToday} = useContext(StoreStateContext);
+
+	const {pieChartLoading, timeSpanKey, timeSpanOffset} = useContext(
+		ChartStateContext
+	);
 
 	const [trafficSources, setTrafficSources] = useStateSafe([]);
 
+	const pieChartWrapperClasses = className('pie-chart-wrapper', {
+		'pie-chart-wrapper--loading': pieChartLoading,
+	});
+
 	useEffect(() => {
 		if (validAnalyticsConnection) {
+			chartDispatch({
+				payload: {
+					loading: true,
+				},
+				type: 'SET_PIE_CHART_LOADING',
+			});
 			dataProvider()
-				.then((trafficSources) => setTrafficSources(trafficSources))
+				.then((trafficSources) => {
+					setTrafficSources(trafficSources);
+				})
 				.catch(() => {
 					setTrafficSources([]);
 					dispatch({type: 'ADD_WARNING'});
+				})
+				.finally(() => {
+					chartDispatch({
+						payload: {
+							loading: false,
+						},
+						type: 'SET_PIE_CHART_LOADING',
+					});
 				});
 		}
-	}, [dispatch, dataProvider, setTrafficSources, validAnalyticsConnection]);
+	}, [
+		chartDispatch,
+		dispatch,
+		dataProvider,
+		setTrafficSources,
+		timeSpanKey,
+		timeSpanOffset,
+		validAnalyticsConnection,
+	]);
 
 	const fullPieChart = useMemo(
 		() =>
@@ -112,7 +151,13 @@ export default function TrafficSources({dataProvider, onTrafficSourceClick}) {
 					)}
 				</div>
 			)}
-			<div className="pie-chart-wrapper">
+			<div className={pieChartWrapperClasses}>
+				{pieChartLoading && (
+					<ClayLoadingIndicator
+						className="chart-loading-indicator"
+						small
+					/>
+				)}
 				<div className="pie-chart-wrapper--legend">
 					<table>
 						<tbody>
